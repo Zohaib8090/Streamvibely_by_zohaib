@@ -41,6 +41,10 @@ const Login = () => {
     }
   };
 
+  const handleGuestLogin = () => {
+    router.replace('/(tabs)');
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -117,6 +121,11 @@ const Login = () => {
           <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
             <Text style={styles.signInButtonText}>Sign In</Text>
           </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.guestButton} onPress={handleGuestLogin}>
+            <Text style={styles.guestButtonText}>Use without login</Text>
+          </TouchableOpacity>
+
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don't have an account?</Text>
             <Link href="/(auth)/signup" asChild>
@@ -228,6 +237,20 @@ const styles = StyleSheet.create({
   signInButtonText: {
     fontSize: 16,
     color: Colors.dark.text,
+    fontFamily: Fonts.bold,
+  },
+  guestButton: {
+    backgroundColor: Colors.dark.background,
+    borderRadius: 8,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: Colors.light.tint,
+  },
+  guestButtonText: {
+    fontSize: 16,
+    color: Colors.light.tint,
     fontFamily: Fonts.bold,
   },
   signUpContainer: {
