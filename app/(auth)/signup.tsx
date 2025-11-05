@@ -1,6 +1,6 @@
 
-import { Colors } from '@/constants/Colors';
-import { Fonts } from '@/constants/Fonts';
+import { Colors } from '../../constants/Colors';
+import { Fonts } from '../../constants/Fonts';
 import { useTheme } from '@react-navigation/native';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -18,19 +18,16 @@ import {
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
-import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 
 const Signup = () => {
   const { dark } = useTheme();
   const router = useRouter();
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { signIn: googleSignIn, loading: googleLoading } = useGoogleSignIn();
 
-  const handleSignUp = async () => {
-    if (username && email && password) {
+  const handleSignup = async () => {
+    if (email && password) {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
         router.replace('/(tabs)');
@@ -38,7 +35,7 @@ const Signup = () => {
         setError(err.message);
       }
     } else {
-      setError('Please fill in all fields.');
+      setError('Please enter both email and password.');
     }
   };
 
@@ -55,7 +52,7 @@ const Signup = () => {
           }}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('@/assets/images/icon.png')}
+              source={require('../../assets/images/icon.png')}
               style={{
                 width: 50,
                 height: 50,
@@ -63,37 +60,8 @@ const Signup = () => {
               }}
             />
           </View>
-          <Text style={styles.title}>Create your Streamvibely account</Text>
-          <Text style={styles.subtitle}>Get started for free</Text>
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={googleSignIn}
-            disabled={googleLoading}>
-            <Image
-              source={{
-                uri: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-              }}
-              style={styles.googleIcon}
-            />
-            <Text style={styles.googleButtonText}>Sign up with Google</Text>
-          </TouchableOpacity>
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-            <View style={styles.divider} />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Username</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Your username"
-              placeholderTextColor={Colors.dark.text}
-              autoCapitalize="none"
-              value={username}
-              onChangeText={setUsername}
-            />
-          </View>
+          <Text style={styles.title}>Create a new account</Text>
+          <Text style={styles.subtitle}>Join us today!</Text>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Email</Text>
@@ -122,13 +90,16 @@ const Signup = () => {
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <TouchableOpacity style={styles.signInButton} onPress={handleSignUp}>
-            <Text style={styles.signInButtonText}>Create Account</Text>
+          <TouchableOpacity style={styles.signUpButton} onPress={handleSignup}>
+            <Text style={styles.signUpButtonText}>Sign Up</Text>
           </TouchableOpacity>
-          <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Already have an account?</Text>
+
+          <View style={styles.signInContainer}>
+            <Text style={styles.signInText}>Already have an account?</Text>
             <Link href="/(auth)/login" asChild>
-              <Text style={styles.signUpLink}> Sign in</Text>
+                <TouchableOpacity>
+                    <Text style={styles.signInLink}> Sign in</Text>
+                </TouchableOpacity>
             </Link>
           </View>
         </ScrollView>
@@ -161,42 +132,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontFamily: Fonts.regular,
   },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.dark.background,
-    borderRadius: 8,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: Colors.dark.text,
-  },
-  googleIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 10,
-  },
-  googleButtonText: {
-    fontSize: 16,
-    color: Colors.dark.text,
-    fontFamily: Fonts.regular,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.dark.text,
-  },
-  dividerText: {
-    fontSize: 12,
-    color: Colors.dark.text,
-    marginHorizontal: 10,
-    fontFamily: Fonts.regular,
-  },
   inputContainer: {
     marginBottom: 15,
   },
@@ -216,29 +151,29 @@ const styles = StyleSheet.create({
     color: Colors.dark.text,
     fontFamily: Fonts.regular,
   },
-  signInButton: {
+  signUpButton: {
     backgroundColor: Colors.light.tint,
     borderRadius: 8,
     paddingVertical: 15,
     alignItems: 'center',
     marginTop: 10,
   },
-  signInButtonText: {
+  signUpButtonText: {
     fontSize: 16,
     color: Colors.dark.text,
     fontFamily: Fonts.bold,
   },
-  signUpContainer: {
+  signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 20,
   },
-  signUpText: {
+  signInText: {
     fontSize: 14,
     color: Colors.dark.text,
     fontFamily: Fonts.regular,
   },
-  signUpLink: {
+  signInLink: {
     fontSize: 14,
     color: Colors.light.tint,
     fontFamily: Fonts.bold,

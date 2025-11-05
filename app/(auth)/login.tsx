@@ -1,8 +1,8 @@
 
-import { Colors } from '@/constants/Colors';
-import { Fonts } from '@/constants/Fonts';
+import { Colors } from '../../constants/Colors';
+import { Fonts } from '../../constants/Fonts';
 import { useTheme } from '@react-navigation/native';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Image,
@@ -58,7 +58,7 @@ const Login = () => {
           }}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('@/assets/images/icon.png')}
+              source={require('../../assets/images/icon.png')}
               style={{
                 width: 50,
                 height: 50,
@@ -102,9 +102,9 @@ const Login = () => {
           <View style={styles.inputContainer}>
             <View style={styles.passwordLabelContainer}>
               <Text style={styles.inputLabel}>Password</Text>
-              <Link href="/forgot-password" asChild>
+              <TouchableOpacity onPress={() => router.push('/forgot-password')}>
                 <Text style={styles.forgotPassword}>Forgot password?</Text>
-              </Link>
+              </TouchableOpacity>
             </View>
             <TextInput
               style={styles.input}
@@ -128,9 +128,9 @@ const Login = () => {
 
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don't have an account?</Text>
-            <Link href="/(auth)/signup" asChild>
+            <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
               <Text style={styles.signUpLink}> Sign up</Text>
-            </Link>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </SafeAreaView>

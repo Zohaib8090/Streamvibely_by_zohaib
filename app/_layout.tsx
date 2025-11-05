@@ -1,61 +1,60 @@
 
 import React, { useEffect, useState } from 'react';
-import { Slot, useRouter, useSegments } from 'expo-router';
-import { onAuthStateChanged } from 'firebase/auth';
+import { Slot, useRouter, useSegments, useRootNavigationState } from 'expo-router';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '../firebase';
 import { SplashScreen } from 'expo-router';
-import NetInfo from '@react-native-community/netinfo';
 
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
-  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const segments = useSegments();
-  const [initialized, setInitialized] = useState(false);
+  const router = useRouter();
+  const navigationState = useRootNavigationState();
 
+  // Effect for checking authentication state
   useEffect(() => {
-    const checkInternetAndAuth = async () => {
-      const netInfoState = await NetInfo.fetch();
-      if (!netInfoState.isConnected) {
-        // Offline: redirect to a specific offline screen or the main content
-        router.replace('/(tabs)');
-        setInitialized(true);
-        return;
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (!authInitialized) {
+        setAuthInitialized(true);
       }
+    });
+    return () => unsubscribe();
+  }, []);
 
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        const inAuthGroup = segments[0] === '(auth)';
-
-        if (user && !inAuthGroup) {
-          router.replace('/(tabs)');
-        } else if (user && inAuthGroup) {
-          router.replace('/(tabs)');
-        } else if (!user) {
-          router.replace('/(auth)/login');
-        }
-        setInitialized(true);
-      });
-      return unsubscribe;
-    };
-
-    const unsubscribePromise = checkInternetAndAuth();
-
-    return () => {
-      unsubscribePromise.then(unsubscribe => {
-        if (unsubscribe) {
-          unsubscribe();
-        }
-      });
-    };
-  }, [segments, router]);
-
+  // Effect for navigation
   useEffect(() => {
-    if (initialized) {
+    if (!navigationState?.key || !authInitialized) {
+      return;
+    }
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (user && inAuthGroup) {
+      // Logged in, but on auth screen -> redirect to app
+      router.replace('/(tabs)');
+    } else if (!user && !inAuthGroup) {
+      // Not logged in and not in auth group -> redirect to login.
+      router.replace('/(auth)/login');
+    }
+  }, [user, authInitialized, segments, router, navigationState]);
+
+  // Hide splash screen once auth is initialized and navigation is ready
+  useEffect(() => {
+    if (authInitialized && navigationState?.key) {
       SplashScreen.hideAsync();
     }
-  }, [initialized]);
+  }, [authInitialized, navigationState]);
 
-  return initialized ? <Slot /> : null;
+  // Render a loading indicator or null until everything is ready
+  if (!authInitialized || !navigationState?.key) {
+    return null;
+  }
+
+  return <Slot />;
 };
 
 export default RootLayout;
