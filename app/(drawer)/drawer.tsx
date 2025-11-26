@@ -28,25 +28,25 @@ const CustomDrawerContent = (props: any) => {
         label="View Profile"
         onPress={() => router.push('/(drawer)/profile')}
         labelStyle={styles.drawerItemLabel}
-        icon={({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />}
+        icon={({ size }) => <Ionicons name="person-outline" size={size} color='#fff' />}
       />
       <DrawerItem
         label="What's new"
         onPress={() => {}}
         labelStyle={styles.drawerItemLabel}
-        icon={({ color, size }) => <Ionicons name="notifications-outline" size={size} color={color} />}
+        icon={({ size }) => <Ionicons name="notifications-outline" size={size} color='#fff' />}
       />
       <DrawerItem
         label="Settings"
         onPress={() => {}}
         labelStyle={styles.drawerItemLabel}
-        icon={({ color, size }) => <Ionicons name="settings-outline" size={size} color={color} />}
+        icon={({ size }) => <Ionicons name="settings-outline" size={size} color='#fff' />}
       />
       <DrawerItem
         label="Logout"
         onPress={handleSignOut}
         labelStyle={styles.drawerItemLabel}
-        icon={({ color, size }) => <Ionicons name="log-out-outline" size={size} color={color} />}
+        icon={({ size }) => <Ionicons name="log-out-outline" size={size} color='#fff' />}
       />
     </DrawerContentScrollView>
   );
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
   },
   drawerItemLabel: {
-    color: Colors.dark.text,
+    color: '#fff',
     fontFamily: Fonts.regular,
   },
 });

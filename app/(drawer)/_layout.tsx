@@ -8,6 +8,8 @@ const DrawerLayout = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={({ route }) => ({
         headerShown: false,
+        drawerActiveTintColor: '#fff',
+        drawerInactiveTintColor: '#fff',
         drawerItemStyle:
           route.name === '(tabs)' || route.name === 'drawer'
             ? { display: 'none' }
