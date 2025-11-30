@@ -9,36 +9,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install npm dependencies
         run: npm install
+
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > android/app/release.keystore
 
       - name: Build Android Release
         run: |
-          echo ${{ secrets.KEYSTORE_B64 }} | base64 -d > android/app/release.keystore
           cd android
           ./gradlew assembleRelease
         env:
-          MYAPP_UPLOAD_STORE_FILE: release.keystore
-          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          MYAPP_UPLOAD_STORE_FILE: 'release.keystore'
+          MYAPP_UPLOAD_STORE_PASSWORD: 'android'
+          MYAPP_UPLOAD_KEY_ALIAS: 'my-key-alias'
+          MYAPP_UPLOAD_KEY_PASSWORD: 'android'
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-release.apk
           path: android/app/build/outputs/apk/release/app-release.apk
