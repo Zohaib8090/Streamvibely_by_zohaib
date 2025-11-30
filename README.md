@@ -8,3 +8,5 @@ how to updated always with new releases
 Join our community of developer via
 1. email (zohaibbaig144@gmail.com)
 2. discord (https://discord.gg/Bmt8F4dUm7)
+
+# Triggering build
