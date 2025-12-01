@@ -14,8 +14,6 @@ import {
   View,
 } from 'react-native';
 
-const YOUTUBE_API_KEY = 'AIzaSyBiuTKC3t93mq7ardC2_AVwD5CVhM2TFIc';
-
 const SearchScreen = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,20 +32,11 @@ const SearchScreen = () => {
     { term: 'nadaniyaan song' },
   ]);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!searchQuery) return;
 
     setSearchHistory([{ term: searchQuery }, ...searchHistory]);
-
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&key=${YOUTUBE_API_KEY}`
-      );
-      const data = await response.json();
-      console.log(data.items);
-    } catch (error) {
-      console.error(error);
-    }
+    router.push({ pathname: '/(drawer)/search-results', params: { query: searchQuery } });
   };
 
   const handleMicSearch = () => {
