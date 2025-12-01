@@ -3,7 +3,7 @@ import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -14,23 +14,48 @@ import {
   View,
 } from 'react-native';
 
-const searchHistory = [
-  { term: 'talwinder songs' },
-  { term: 'ehasaas' },
-  { term: 'katilana' },
-  { term: 'kashish song' },
-  { term: 'gaming hot' },
-  { term: 'gaming hit' },
-  { term: 'gaming' },
-  { term: 'gaming music' },
-  { term: 'boyna galava' },
-  { term: 'vina gala song' },
-  { term: 'nadaaniyan movie song' },
-  { term: 'nadaniyaan song' },
-];
+const YOUTUBE_API_KEY = 'AIzaSyBiuTKC3t93mq7ardC2_AVwD5CVhM2TFIc'; // Replace with your YouTube API key
 
 const SearchScreen = () => {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchHistory, setSearchHistory] = useState([
+    { term: 'talwinder songs' },
+    { term: 'ehasaas' },
+    { term: 'katilana' },
+    { term: 'kashish song' },
+    { term: 'gaming hot' },
+    { term: 'gaming hit' },
+    { term: 'gaming' },
+    { term: 'gaming music' },
+    { term: 'boyna galava' },
+    { term: 'vina gala song' },
+    { term: 'nadaaniyan movie song' },
+    { term: 'nadaniyaan song' },
+  ]);
+
+  const handleSearch = async () => {
+    if (!searchQuery) return;
+
+    // Add to search history
+    setSearchHistory([{ term: searchQuery }, ...searchHistory]);
+
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&key=${YOUTUBE_API_KEY}`
+      );
+      const data = await response.json();
+      // Process and display search results
+      console.log(data.items);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleMicSearch = () => {
+    // Implement mic search functionality here
+    console.log('Mic search activated');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -43,8 +68,11 @@ const SearchScreen = () => {
             placeholder="Search songs, artist..."
             placeholderTextColor="#8E8E93"
             style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleMicSearch}>
             <Ionicons name="mic-outline" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
           <TouchableOpacity>
