@@ -97,10 +97,20 @@ const SearchResultsScreen = () => {
         {filterOptions.map((option) => (
           <TouchableOpacity
             key={option}
-            style={[styles.filterChip, selectedFilter === option && styles.selectedFilterChip]}
+            style={[
+              styles.filterChip,
+              selectedFilter === option && styles.selectedFilterChip,
+            ]}
             onPress={() => handleSearch(option)}
           >
-            <Text style={styles.filterText}>{option}</Text>
+            <Text
+              style={[
+                styles.filterText,
+                selectedFilter === option && styles.selectedFilterText,
+              ]}
+            >
+              {option}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -117,7 +127,9 @@ const SearchResultsScreen = () => {
               />
               <View style={styles.resultInfo}>
                 <Text style={styles.resultTitle}>{item.snippet.title}</Text>
-                <Text style={styles.resultSubtitle}>{item.snippet.channelTitle}</Text>
+                <Text style={styles.resultSubtitle}>
+                  {item.snippet.channelTitle}
+                </Text>
               </View>
               <Ionicons name="ellipsis-vertical" size={24} color={Colors.dark.text} />
             </View>
@@ -166,7 +178,7 @@ const styles = StyleSheet.create({
   },
   tab: {
     paddingVertical: 8,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   tabText: {
     color: Colors.dark.text,
@@ -179,9 +191,9 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     backgroundColor: '#2C2C2E',
-    borderRadius: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     marginRight: 8,
   },
   selectedFilterChip: {
@@ -190,6 +202,9 @@ const styles = StyleSheet.create({
   filterText: {
     color: Colors.dark.text,
     fontFamily: Fonts.regular,
+  },
+  selectedFilterText: {
+    color: Colors.dark.background,
   },
   resultsContainer: {
     flex: 1,
