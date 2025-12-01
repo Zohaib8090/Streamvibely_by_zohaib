@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ThemeProvider } from '../hooks/useTheme';
 
 const InitialLayout = () => {
   const { user, initialized } = useAuth();
@@ -23,7 +24,9 @@ const InitialLayout = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Slot />
+      <ThemeProvider>
+        <Slot />
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 };

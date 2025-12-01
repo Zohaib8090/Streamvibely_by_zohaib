@@ -5,17 +5,18 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
+import { useTheme } from '../../../hooks/useTheme';
 
 const TabsLayout = () => {
   const navigation = useNavigation();
+  const { theme } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.dark.text,
+        tabBarActiveTintColor: theme.text,
         tabBarStyle: {
-          backgroundColor: Colors.dark.background,
+          backgroundColor: theme.background,
         },
       }}
     >
@@ -29,20 +30,20 @@ const TabsLayout = () => {
               onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
               style={{ marginLeft: 15 }}
             >
-              <Ionicons name="menu" size={24} color={Colors.dark.text} />
+              <Ionicons name="menu" size={24} color={theme.text} />
             </TouchableOpacity>
           ),
           headerRight: () => (
             <Link href="/(drawer)/search" asChild>
               <TouchableOpacity style={{ marginRight: 15 }}>
-                <Ionicons name="search" size={24} color={Colors.dark.text} />
+                <Ionicons name="search" size={24} color={theme.text} />
               </TouchableOpacity>
             </Link>
           ),
           headerStyle: {
-            backgroundColor: Colors.dark.background,
+            backgroundColor: theme.background,
           },
-          headerTintColor: Colors.dark.text,
+          headerTintColor: theme.text,
         }}
       />
       <Tabs.Screen
