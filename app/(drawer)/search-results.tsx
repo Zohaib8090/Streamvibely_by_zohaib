@@ -1,7 +1,7 @@
 
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -18,23 +18,35 @@ import {
 
 const YOUTUBE_API_KEY = 'AIzaSyBiuTKC3t93mq7ardC2_AVwD5CVhM2TFIc';
 
+type Filter = 'Songs' | 'Videos' | 'Artists' | 'Community playlists' | 'Episodes';
+
 const SearchResultsScreen = () => {
   const router = useRouter();
   const { query } = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState(query as string);
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFilter, setSelectedFilter] = useState<Filter>('Songs');
 
   const searchTabs = ['YT MUSIC', 'LIBRARY'];
-  const filterOptions = ['Songs', 'Artists', 'Videos', 'Community playlists', 'Episodes'];
+  const filterOptions: Filter[] = ['Songs', 'Artists', 'Videos', 'Community playlists', 'Episodes'];
 
-  const handleSearch = async () => {
+  const handleSearch = async (filter: Filter) => {
     if (!searchQuery) return;
 
     setLoading(true);
+    setSelectedFilter(filter);
+
+    let type = 'video';
+    if (filter === 'Artists') {
+      type = 'channel';
+    } else if (filter === 'Community playlists') {
+      type = 'playlist';
+    }
+
     try {
       const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&key=${YOUTUBE_API_KEY}`
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&type=${type}&key=${YOUTUBE_API_KEY}`
       );
       const data = await response.json();
       setResults(data.items || []);
@@ -46,7 +58,7 @@ const SearchResultsScreen = () => {
   };
 
   useEffect(() => {
-    handleSearch();
+    handleSearch('Songs');
   }, []);
 
   return (
@@ -57,21 +69,18 @@ const SearchResultsScreen = () => {
         </TouchableOpacity>
         <View style={styles.searchBar}>
           <TextInput
-            placeholder="Search songs, artist..."
+            placeholder="Search..."
             placeholderTextColor="#8E8E93"
             style={styles.searchInput}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
+            onSubmitEditing={() => handleSearch(selectedFilter)}
           />
           <TouchableOpacity onPress={() => setSearchQuery('')}>
             <Ionicons name="close" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
           <TouchableOpacity>
             <Ionicons name="mic-outline" size={24} color={Colors.dark.text} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="options-outline" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -86,7 +95,11 @@ const SearchResultsScreen = () => {
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersContainer}>
         {filterOptions.map((option) => (
-          <TouchableOpacity key={option} style={styles.filterChip}>
+          <TouchableOpacity
+            key={option}
+            style={[styles.filterChip, selectedFilter === option && styles.selectedFilterChip]}
+            onPress={() => handleSearch(option)}
+          >
             <Text style={styles.filterText}>{option}</Text>
           </TouchableOpacity>
         ))}
@@ -97,7 +110,7 @@ const SearchResultsScreen = () => {
       ) : (
         <ScrollView style={styles.resultsContainer}>
           {results.map((item) => (
-            <View key={item.id.videoId} style={styles.resultItem}>
+            <View key={item.id.videoId || item.id.channelId || item.id.playlistId} style={styles.resultItem}>
               <Image
                 source={{ uri: item.snippet.thumbnails.default.url }}
                 style={styles.resultThumbnail}
@@ -118,88 +131,91 @@ const SearchResultsScreen = () => {
 export default SearchResultsScreen;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.dark.background,
-        paddingHorizontal: 16,
-      },
-      header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 24,
-        marginBottom: 16,
-        gap: 12,
-      },
-      searchBar: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#1C1C1E',
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        gap: 12,
-      },
-      searchInput: {
-        flex: 1,
-        color: Colors.dark.text,
-        fontFamily: Fonts.regular,
-        fontSize: 16,
-        paddingVertical: 10,
-      },
-      tabsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginBottom: 16,
-      },
-      tab: {
-        paddingVertical: 8,
-        paddingHorizontal: 24,
-      },
-      tabText: {
-        color: Colors.dark.text,
-        fontFamily: Fonts.bold,
-        fontSize: 16,
-      },
-      filtersContainer: {
-        flexDirection: 'row',
-        marginBottom: 16,
-      },
-      filterChip: {
-        backgroundColor: '#2C2C2E',
-        borderRadius: 16,
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        marginRight: 8,
-      },
-      filterText: {
-        color: Colors.dark.text,
-        fontFamily: Fonts.regular,
-      },
-      resultsContainer: {
-        flex: 1,
-      },
-      resultItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-      },
-      resultThumbnail: {
-        width: 48,
-        height: 48,
-        borderRadius: 4,
-      },
-      resultInfo: {
-        flex: 1,
-        marginLeft: 16,
-      },
-      resultTitle: {
-        color: Colors.dark.text,
-        fontFamily: Fonts.regular,
-        fontSize: 16,
-      },
-      resultSubtitle: {
-        color: '#8E8E93',
-        fontFamily: Fonts.regular,
-        fontSize: 14,
-      },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.dark.background,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 16,
+    gap: 12,
+  },
+  searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    gap: 12,
+  },
+  searchInput: {
+    flex: 1,
+    color: Colors.dark.text,
+    fontFamily: Fonts.regular,
+    fontSize: 16,
+    paddingVertical: 10,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+  },
+  tabText: {
+    color: Colors.dark.text,
+    fontFamily: Fonts.bold,
+    fontSize: 16,
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  filterChip: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginRight: 8,
+  },
+  selectedFilterChip: {
+    backgroundColor: Colors.dark.text,
+  },
+  filterText: {
+    color: Colors.dark.text,
+    fontFamily: Fonts.regular,
+  },
+  resultsContainer: {
+    flex: 1,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  resultThumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: 4,
+  },
+  resultInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  resultTitle: {
+    color: Colors.dark.text,
+    fontFamily: Fonts.regular,
+    fontSize: 16,
+  },
+  resultSubtitle: {
+    color: '#8E8E93',
+    fontFamily: Fonts.regular,
+    fontSize: 14,
+  },
 });
