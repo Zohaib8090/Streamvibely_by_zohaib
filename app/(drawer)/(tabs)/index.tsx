@@ -44,7 +44,7 @@ const HomeScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Personalized Recommendations</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(drawer)/search')}>
             <Ionicons name="search-outline" size={28} color={Colors.dark.text} />
           </TouchableOpacity>
         </View>
@@ -56,7 +56,7 @@ const HomeScreen = () => {
           <Text style={styles.suggestionsSubtitle}>
             Our AI will recommend songs based on your listening history. The more you listen, the
             better the recommendations.
-          </Text>
+          </T ext>
         </View>
         <TouchableOpacity style={styles.suggestionsButton}>
           <MaterialCommunityIcons name="star-four-points-outline" size={24} color="white" />
