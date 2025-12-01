@@ -1,7 +1,6 @@
 
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
-import { auth } from '@/firebase';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -40,17 +39,13 @@ const playlists = [
 
 const HomeScreen = () => {
   const router = useRouter();
-  const handleSignOut = async () => {
-    await auth.signOut();
-    router.replace('/(auth)/login');
-  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Personalized Recommendations</Text>
-          <TouchableOpacity onPress={handleSignOut}>
-            <Ionicons name="log-out-outline" size={28} color={Colors.dark.text} />
+          <TouchableOpacity>
+            <Ionicons name="search-outline" size={28} color={Colors.dark.text} />
           </TouchableOpacity>
         </View>
         <View style={styles.suggestionsCard}>
