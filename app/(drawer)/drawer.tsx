@@ -23,6 +23,18 @@ const CustomDrawerContent = (props: any) => {
         <Text style={styles.headerText}>Menu</Text>
       </View>
       <DrawerItem
+        label="View Profile"
+        onPress={() => router.push('/(drawer)/profile')}
+        labelStyle={styles.drawerItemLabel}
+        icon={({ size }) => <Ionicons name="person-outline" size={size} color='#fff' />}
+      />
+      <DrawerItem
+        label="What's new"
+        onPress={() => {}}
+        labelStyle={styles.drawerItemLabel}
+        icon={({ size }) => <Ionicons name="notifications-outline" size={size} color='#fff' />}
+      />
+      <DrawerItem
         label="Settings"
         onPress={() => {}}
         labelStyle={styles.drawerItemLabel}
