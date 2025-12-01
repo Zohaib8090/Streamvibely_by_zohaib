@@ -56,7 +56,7 @@ const HomeScreen = () => {
           <Text style={styles.suggestionsSubtitle}>
             Our AI will recommend songs based on your listening history. The more you listen, the
             better the recommendations.
-          </T ext>
+          </Text>
         </View>
         <TouchableOpacity style={styles.suggestionsButton}>
           <MaterialCommunityIcons name="star-four-points-outline" size={24} color="white" />
