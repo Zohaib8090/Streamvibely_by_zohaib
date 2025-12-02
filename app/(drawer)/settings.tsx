@@ -1,3 +1,4 @@
+
 import { Fonts } from '@/constants/Fonts';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -424,8 +425,8 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   subSectionHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    alignItems: 'center
+      gap: 8,
     marginBottom: 16,
   },
   subSectionTitle: {
