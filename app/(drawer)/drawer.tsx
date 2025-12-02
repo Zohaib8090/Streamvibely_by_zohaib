@@ -1,4 +1,3 @@
-
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
 import { auth } from '@/firebase';
@@ -36,7 +35,7 @@ const CustomDrawerContent = (props: any) => {
       />
       <DrawerItem
         label="Settings"
-        onPress={() => {}}
+        onPress={() => router.push('/(drawer)/settings')}
         labelStyle={styles.drawerItemLabel}
         icon={({ size }) => <Ionicons name="settings-outline" size={size} color='#fff' />}
       />
