@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "731940880209",
+    "project_id": "streamvibely",
+    "storage_bucket": "streamvibely.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731940880209:android:00addc8e708050d7db9d70",
+        "android_client_info": {
+          "package_name": "com.zohaibbaig.streamvibely"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "731940880209-m97em35d4g4qt8188kn6cbhmm1sth54g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zohaibbaig.streamvibely",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "731940880209-n8sgjjl15u3eoqogb2qj02u1gjm4psh9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiAKXm9sOrjPmKb0qgY6h4jQ-f763NDZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "731940880209-n8sgjjl15u3eoqogb2qj02u1gjm4psh9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "731940880209-gvg4jmkua1okro3ckmj2kccqd5fcqj23.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zohaibbaig.streamvibely"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
