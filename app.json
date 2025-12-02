@@ -2,7 +2,7 @@
   "expo": {
     "name": "streamvibely",
     "slug": "streamvibely",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "streamvibely",
@@ -45,6 +45,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0e426715-32e9-44a8-adde-1197f93703e6"
+      }
     }
   }
 }
