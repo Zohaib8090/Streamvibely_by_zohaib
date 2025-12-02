@@ -425,8 +425,8 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   subSectionHeader: {
     flexDirection: 'row',
-    alignItems: 'center
-      gap: 8,
+    alignItems: 'center',
+    gap: 8,
     marginBottom: 16,
   },
   subSectionTitle: {
