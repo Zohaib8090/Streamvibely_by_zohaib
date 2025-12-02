@@ -1,4 +1,3 @@
-
 import { Fonts } from '@/constants/Fonts';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -10,12 +9,26 @@ import {
   View,
   TouchableOpacity,
   Switch,
+  Button
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
+import * as Notifications from 'expo-notifications';
+
+async function schedulePushNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "You've got mail! 📬",
+        body: 'Here is the notification body',
+        data: { data: 'goes here' },
+      },
+      trigger: { seconds: 2 },
+    });
+  }
 
 const SettingsScreen = () => {
   const { theme, isDark, toggleTheme } = useTheme();
   const [isYouTubeMusicEnabled, setIsYouTubeMusicEnabled] = useState(false);
+  const [isBrowserNotificationsEnabled, setIsBrowserNotificationsEnabled] = useState(false);
   const [isNewReleasesEnabled, setIsNewReleasesEnabled] = useState(true);
   const [isPlaylistUpdatesEnabled, setIsPlaylistUpdatesEnabled] = useState(false);
   const [isAutoPlayEnabled, setIsAutoPlayEnabled] = useState(true);
@@ -68,13 +81,15 @@ const SettingsScreen = () => {
           <Text style={styles.sectionDescription}>Manage how you receive notifications.</Text>
           <View style={styles.card}>
             <View>
-              <Text style={styles.cardTitle}>Browser Notifications</Text>
-              <Text style={styles.cardDescription}>Enable browser notifications</Text>
+              <Text style={styles.cardTitle}>Enable Notifications</Text>
+              <Text style={styles.cardDescription}>Enable push notifications</Text>
             </View>
-            <TouchableOpacity style={styles.button}>
-              <Ionicons name="notifications-outline" size={16} color={theme.text} />
-              <Text style={styles.buttonText}>Enable</Text>
-            </TouchableOpacity>
+            <Switch
+              value={isBrowserNotificationsEnabled}
+              onValueChange={setIsBrowserNotificationsEnabled}
+              trackColor={{ false: '#3e3e3e', true: theme.primary }}
+              thumbColor={isBrowserNotificationsEnabled ? theme.primary : '#f4f3f4'}
+            />
           </View>
           <View style={styles.card}>
             <View>
@@ -100,6 +115,12 @@ const SettingsScreen = () => {
               thumbColor={isPlaylistUpdatesEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
+            <Button
+                title="Test Notification"
+                onPress={async () => {
+                await schedulePushNotification();
+                }}
+            />
         </View>
 
         {/* Listening Controls Section */}
