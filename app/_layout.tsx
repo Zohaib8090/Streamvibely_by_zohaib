@@ -1,4 +1,4 @@
-
+import 'react-native-gesture-handler';
 import { useAuth } from '../hooks/useAuth';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
