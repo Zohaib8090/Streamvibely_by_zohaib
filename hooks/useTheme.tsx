@@ -1,6 +1,5 @@
-
 import { createContext, useContext, useState, useMemo } from 'react';
-import { ThemeProvider as RNThemeProvider } from '@react-navigation/native';
+import { ThemeProvider as RNThemeProvider, DefaultTheme } from '@react-navigation/native';
 import { Colors } from '@/constants/Colors';
 
 const ThemeContext = createContext({
@@ -20,9 +19,23 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const theme = useMemo(() => (isDark ? Colors.dark : Colors.light), [isDark]);
 
+  const navigationTheme = useMemo(
+    () => ({
+      ...DefaultTheme,
+      colors: {
+        ...DefaultTheme.colors,
+        background: theme.background,
+        card: theme.card,
+        text: theme.text,
+        primary: theme.primary,
+      },
+    }),
+    [theme]
+  );
+
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme, theme }}>
-      <RNThemeProvider value={theme}>{children}</RNThemeProvider>
+      <RNThemeProvider value={navigationTheme}>{children}</RNThemeProvider>
     </ThemeContext.Provider>
   );
 };

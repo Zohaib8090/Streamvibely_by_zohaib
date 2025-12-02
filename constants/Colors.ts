@@ -7,7 +7,8 @@ export const Colors = {
         tabIconSelected: '#2f95dc',
         card: '#f0f0f0',
         primary: '#2f95dc',
-        // Add the following properties to conform to the Navigation theme
+        button: '#f0f0f0',
+        sliderTrack: '#ccc',
         dark: false,
         colors: {
             primary: '#2f95dc',
@@ -26,7 +27,8 @@ export const Colors = {
         tabIconSelected: '#fff',
         card: '#1C1C1E',
         primary: '#c2ffc2',
-        // Add the following properties to conform to the Navigation theme
+        button: '#333',
+        sliderTrack: '#3e3e3e',
         dark: true,
         colors: {
             primary: '#c2ffc2',
