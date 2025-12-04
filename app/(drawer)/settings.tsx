@@ -10,10 +10,15 @@ import {
   View,
   TouchableOpacity,
   Switch,
-  Button
+  Button,
+  Alert
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import * as Notifications from 'expo-notifications';
+import Slider from '@react-native-community/slider';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 async function schedulePushNotification() {
     await Notifications.scheduleNotificationAsync({
@@ -28,20 +33,57 @@ async function schedulePushNotification() {
 
 const SettingsScreen = () => {
   const { theme, isDark, toggleTheme } = useTheme();
-  const [isYouTubeMusicEnabled, setIsYouTubeMusicEnabled] = useState(false);
-  const [isBrowserNotificationsEnabled, setIsBrowserNotificationsEnabled] = useState(false);
-  const [isNewReleasesEnabled, setIsNewReleasesEnabled] = useState(true);
-  const [isPlaylistUpdatesEnabled, setIsPlaylistUpdatesEnabled] = useState(false);
-  const [isAutoPlayEnabled, setIsAutoPlayEnabled] = useState(true);
-  const [isMonoAudioEnabled, setIsMonoAudioEnabled] = useState(false);
-  const [isVolumeNormalizationEnabled, setIsVolumeNormalizationEnabled] = useState(false);
-  const [isGaplessPlaybackEnabled, setIsGaplessPlaybackEnabled] = useState(true);
-  const [isAutomixEnabled, setIsAutomixEnabled] = useState(true);
+  const [settings, setSettings] = useState({
+    isYouTubeMusicEnabled: false,
+    isBrowserNotificationsEnabled: false,
+    isNewReleasesEnabled: true,
+    isPlaylistUpdatesEnabled: false,
+    isAutoPlayEnabled: true,
+    isMonoAudioEnabled: false,
+    isVolumeNormalizationEnabled: false,
+    isGaplessPlaybackEnabled: true,
+    isAutomixEnabled: true,
+    crossfadeValue: 0,
+    audioBalanceValue: 0.5,
+    wifiAudioQuality: 'Automatic',
+    cellularAudioQuality: 'Automatic',
+    wifiVideoQuality: 'Automatic',
+    cellularVideoQuality: 'Automatic',
+  });
 
-  const [wifiAudioQuality, setWifiAudioQuality] = useState('Automatic');
-  const [cellularAudioQuality, setCellularAudioQuality] = useState('Automatic');
-  const [wifiVideoQuality, setWifiVideoQuality] = useState('Automatic');
-  const [cellularVideoQuality, setCellularVideoQuality] = useState('Automatic');
+  const handleSettingChange = (key, value) => {
+    setSettings(prevSettings => ({
+      ...prevSettings,
+      [key]: value,
+    }));
+  };
+
+  const exportSettings = async () => {
+    try {
+      const settingsString = JSON.stringify(settings, null, 2);
+      const fileUri = FileSystem.cacheDirectory + 'settings.json';
+      await FileSystem.writeAsStringAsync(fileUri, settingsString);
+      await Sharing.shareAsync(fileUri, { mimeType: 'application/json', dialogTitle: 'Export Settings' });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to export settings.');
+    }
+  };
+
+  const importSettings = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/json',
+      });
+        if (result.assets && result.assets.length > 0) {
+        const settingsString = await FileSystem.readAsStringAsync(result.assets[0].uri);
+        const importedSettings = JSON.parse(settingsString);
+        setSettings(importedSettings);
+        Alert.alert('Success', 'Settings imported successfully.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to import settings.');
+    }
+  };
 
   const audioQualityOptions = ['Automatic', 'Very High', 'High', 'Standard', 'Low'];
   const videoQualityOptions = ['Automatic', 'Very High', 'High', 'Standard', 'Low'];
@@ -55,6 +97,19 @@ const SettingsScreen = () => {
           <Text style={styles.headerTitle}>Settings</Text>
         </View>
 
+        {/* Import/Export Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Manage Settings</Text>
+          <View style={styles.card}>
+            <TouchableOpacity style={styles.button} onPress={importSettings}>
+                <Text style={styles.buttonText}>Import Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={exportSettings}>
+                <Text style={styles.buttonText}>Export Settings</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
         {/* Streaming Services Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Streaming Services</Text>
@@ -62,16 +117,16 @@ const SettingsScreen = () => {
           <View style={styles.card}>
             <View style={styles.cardLeft}>
               <Ionicons name="logo-youtube" size={24} color="red" />
-              <View>
+              <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>YouTube Music</Text>
                 <Text style={styles.cardDescription}>Sync your library and playlists from YouTube Music.</Text>
               </View>
             </View>
             <Switch
-              value={isYouTubeMusicEnabled}
-              onValueChange={setIsYouTubeMusicEnabled}
+              value={settings.isYouTubeMusicEnabled}
+              onValueChange={value => handleSettingChange('isYouTubeMusicEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isYouTubeMusicEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isYouTubeMusicEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
         </View>
@@ -81,39 +136,39 @@ const SettingsScreen = () => {
           <Text style={styles.sectionTitle}>Notifications</Text>
           <Text style={styles.sectionDescription}>Manage how you receive notifications.</Text>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Enable Notifications</Text>
               <Text style={styles.cardDescription}>Enable push notifications</Text>
             </View>
             <Switch
-              value={isBrowserNotificationsEnabled}
-              onValueChange={setIsBrowserNotificationsEnabled}
+              value={settings.isBrowserNotificationsEnabled}
+              onValueChange={value => handleSettingChange('isBrowserNotificationsEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isBrowserNotificationsEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isBrowserNotificationsEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>New Releases</Text>
               <Text style={styles.cardDescription}>Get notified about new music from artists you follow.</Text>
             </View>
             <Switch
-              value={isNewReleasesEnabled}
-              onValueChange={setIsNewReleasesEnabled}
+              value={settings.isNewReleasesEnabled}
+              onValueChange={value => handleSettingChange('isNewReleasesEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isNewReleasesEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isNewReleasesEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Playlist Updates</Text>
               <Text style={styles.cardDescription}>Get notified when playlists you follow are updated.</Text>
             </View>
             <Switch
-              value={isPlaylistUpdatesEnabled}
-              onValueChange={setIsPlaylistUpdatesEnabled}
+              value={settings.isPlaylistUpdatesEnabled}
+              onValueChange={value => handleSettingChange('isPlaylistUpdatesEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isPlaylistUpdatesEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isPlaylistUpdatesEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
             <Button
@@ -129,43 +184,51 @@ const SettingsScreen = () => {
           <Text style={styles.sectionTitle}>Listening Controls</Text>
           <Text style={styles.sectionDescription}>Customize your listening experience.</Text>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Auto Play</Text>
               <Text style={styles.cardDescription}>Automatically play similar songs when your music ends.</Text>
             </View>
             <Switch
-              value={isAutoPlayEnabled}
-              onValueChange={setIsAutoPlayEnabled}
+              value={settings.isAutoPlayEnabled}
+              onValueChange={value => handleSettingChange('isAutoPlayEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isAutoPlayEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isAutoPlayEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Mono Audio</Text>
               <Text style={styles.cardDescription}>Makes the left and right speakers play the same audio.</Text>
             </View>
             <Switch
-              value={isMonoAudioEnabled}
-              onValueChange={setIsMonoAudioEnabled}
+              value={settings.isMonoAudioEnabled}
+              onValueChange={value => handleSettingChange('isMonoAudioEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isMonoAudioEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isMonoAudioEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Audio Balance</Text>
               <Text style={styles.cardDescription}>Adjust the audio output between left and right channels.</Text>
             </View>
-            {/* Slider placeholder */}
             <View style={styles.sliderContainer}>
                 <Text style={styles.sliderLabel}>L</Text>
-                <View style={styles.sliderTrack}><View style={styles.sliderThumb} /></View>
+                <Slider
+                    style={styles.slider}
+                    minimumValue={0}
+                    maximumValue={1}
+                    value={settings.audioBalanceValue}
+                    onValueChange={value => handleSettingChange('audioBalanceValue', value)}
+                    minimumTrackTintColor={theme.primary}
+                    maximumTrackTintColor={theme.sliderTrack}
+                    thumbTintColor={theme.text}
+                />
                 <Text style={styles.sliderLabel}>R</Text>
             </View>
           </View>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Equaliser</Text>
               <Text style={styles.cardDescription}>Fine-tune your audio with presets or custom settings.</Text>
             </View>
@@ -174,15 +237,15 @@ const SettingsScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Volume Normalisation</Text>
               <Text style={styles.cardDescription}>Set the same volume level for all tracks.</Text>
             </View>
             <Switch
-              value={isVolumeNormalizationEnabled}
-              onValueChange={setIsVolumeNormalizationEnabled}
+              value={settings.isVolumeNormalizationEnabled}
+              onValueChange={value => handleSettingChange('isVolumeNormalizationEnabled', value)}
               trackColor={{ false: '#3e3e3e', true: theme.primary }}
-              thumbColor={isVolumeNormalizationEnabled ? theme.primary : '#f4f3f4'}
+              thumbColor={settings.isVolumeNormalizationEnabled ? theme.primary : '#f4f3f4'}
             />
           </View>
         </View>
@@ -202,9 +265,9 @@ const SettingsScreen = () => {
                     <Text style={styles.streamingTitle}>Wi-Fi Streaming</Text>
                 </View>
                 {audioQualityOptions.map(option => (
-                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => setWifiAudioQuality(option)}>
+                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => handleSettingChange('wifiAudioQuality', option)}>
                         <Text style={styles.radioLabel}>{option}</Text>
-                        <View style={[styles.radio, wifiAudioQuality === option && styles.radioSelected]} />
+                        <View style={[styles.radio, settings.wifiAudioQuality === option && styles.radioSelected]} />
                     </TouchableOpacity>
                 ))}
             </View>
@@ -214,9 +277,9 @@ const SettingsScreen = () => {
                     <Text style={styles.streamingTitle}>Cellular Streaming</Text>
                 </View>
                 {audioQualityOptions.map(option => (
-                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => setCellularAudioQuality(option)}>
+                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => handleSettingChange('cellularAudioQuality', option)}>
                         <Text style={styles.radioLabel}>{option}</Text>
-                        <View style={[styles.radio, cellularAudioQuality === option && styles.radioSelected]} />
+                        <View style={[styles.radio, settings.cellularAudioQuality === option && styles.radioSelected]} />
                     </TouchableOpacity>
                 ))}
             </View>
@@ -232,9 +295,9 @@ const SettingsScreen = () => {
                     <Text style={styles.streamingTitle}>Wi-Fi Streaming</Text>
                 </View>
                 {videoQualityOptions.map(option => (
-                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => setWifiVideoQuality(option)}>
+                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => handleSettingChange('wifiVideoQuality', option)}>
                         <Text style={styles.radioLabel}>{option}</Text>
-                        <View style={[styles.radio, wifiVideoQuality === option && styles.radioSelected]} />
+                        <View style={[styles.radio, settings.wifiVideoQuality === option && styles.radioSelected]} />
                     </TouchableOpacity>
                 ))}
             </View>
@@ -244,9 +307,9 @@ const SettingsScreen = () => {
                     <Text style={styles.streamingTitle}>Cellular Streaming</Text>
                 </View>
                 {videoQualityOptions.map(option => (
-                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => setCellularVideoQuality(option)}>
+                    <TouchableOpacity key={option} style={styles.radioOption} onPress={() => handleSettingChange('cellularVideoQuality', option)}>
                         <Text style={styles.radioLabel}>{option}</Text>
-                        <View style={[styles.radio, cellularVideoQuality === option && styles.radioSelected]} />
+                        <View style={[styles.radio, settings.cellularVideoQuality === option && styles.radioSelected]} />
                     </TouchableOpacity>
                 ))}
             </View>
@@ -260,37 +323,47 @@ const SettingsScreen = () => {
                 <Text style={styles.subSectionTitle}>Track Transitions</Text>
             </View>
             <View style={styles.card}>
-                <View>
+                <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>Gapless Playback</Text>
                 <Text style={styles.cardDescription}>Allow gapless playback between songs.</Text>
                 </View>
                 <Switch
-                value={isGaplessPlaybackEnabled}
-                onValueChange={setIsGaplessPlaybackEnabled}
+                value={settings.isGaplessPlaybackEnabled}
+                onValueChange={value => handleSettingChange('isGaplessPlaybackEnabled', value)}
                 trackColor={{ false: '#3e3e3e', true: theme.primary }}
-                thumbColor={isGaplessPlaybackEnabled ? theme.primary : '#f4f3f4'}
+                thumbColor={settings.isGaplessPlaybackEnabled ? theme.primary : '#f4f3f4'}
                 />
             </View>
             <View style={styles.card}>
-                <View>
+                <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>Automix</Text>
                 <Text style={styles.cardDescription}>Allow smooth transitions between songs.</Text>
                 </View>
                 <Switch
-                value={isAutomixEnabled}
-                onValueChange={setIsAutomixEnabled}
+                value={settings.isAutomixEnabled}
+                onValueChange={value => handleSettingChange('isAutomixEnabled', value)}
                 trackColor={{ false: '#3e3e3e', true: theme.primary }}
-                thumbColor={isAutomixEnabled ? theme.primary : '#f4f3f4'}
+                thumbColor={settings.isAutomixEnabled ? theme.primary : '#f4f3f4'}
                 />
             </View>
             <View style={styles.card}>
-                <View>
+                <View style={styles.cardContent}>
                     <Text style={styles.cardTitle}>Crossfade</Text>
                     <Text style={styles.cardDescription}>Fade out the current song as the next one fades in.</Text>
                 </View>
                 <View style={styles.sliderContainer}>
-                    <View style={styles.sliderTrack}><View style={styles.sliderThumb} /></View>
-                    <Text style={styles.sliderLabel}>0s</Text>
+                    <Slider
+                        style={styles.slider}
+                        minimumValue={0}
+                        maximumValue={12}
+                        step={1}
+                        value={settings.crossfadeValue}
+                        onValueChange={value => handleSettingChange('crossfadeValue', value)}
+                        minimumTrackTintColor={theme.primary}
+                        maximumTrackTintColor={theme.sliderTrack}
+                        thumbTintColor={theme.text}
+                    />
+                    <Text style={styles.sliderLabel}>{`${settings.crossfadeValue}s`}</Text>
                 </View>
             </View>
         </View>
@@ -300,7 +373,7 @@ const SettingsScreen = () => {
           <Text style={styles.sectionTitle}>Appearance</Text>
           <Text style={styles.sectionDescription}>Customize the look and feel of the app.</Text>
           <View style={styles.card}>
-            <View>
+            <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Dark Mode</Text>
               <Text style={styles.cardDescription}>Enjoy the app in a darker theme.</Text>
             </View>
@@ -368,11 +441,16 @@ const getStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
+    gap: 16,
   },
   cardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    flex: 1,
+  },
+  cardContent: {
+    flex: 1,
   },
   cardTitle: {
     color: theme.text,
@@ -402,19 +480,10 @@ const getStyles = (theme: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
   },
-  sliderTrack: {
-    height: 4,
-    width: 100,
-    backgroundColor: theme.sliderTrack,
-    borderRadius: 2,
-    justifyContent: 'center',
-  },
-  sliderThumb: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: theme.text,
+  slider: {
+    flex: 1,
   },
   sliderLabel: {
     color: theme.text,
@@ -442,7 +511,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   streamingHeader: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'center
       gap: 8,
       marginBottom: 12,
   },
