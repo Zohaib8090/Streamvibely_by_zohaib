@@ -72,6 +72,7 @@ const SettingsScreen = () => {
       await FileSystem.writeAsStringAsync(fileUri, settingsString);
       await Sharing.shareAsync(fileUri, { mimeType: 'application/json', dialogTitle: 'Export Settings' });
     } catch (error) {
+      console.error(error);
       Alert.alert('Error', 'Failed to export settings.');
     }
   };
