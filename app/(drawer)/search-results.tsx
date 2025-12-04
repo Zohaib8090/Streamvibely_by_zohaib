@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { usePlayer } from '../../contexts/PlayerContext';
 
 const YOUTUBE_API_KEY = 'AIzaSyBiuTKC3t93mq7ardC2_AVwD5CVhM2TFIc';
 
@@ -27,6 +28,7 @@ const SearchResultsScreen = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<Filter>('Songs');
+  const { playTrack } = usePlayer();
 
   const searchTabs = ['YT MUSIC', 'LIBRARY'];
   const filterOptions: Filter[] = ['Songs', 'Artists', 'Videos', 'Community playlists', 'Episodes'];
@@ -120,7 +122,21 @@ const SearchResultsScreen = () => {
       ) : (
         <ScrollView style={styles.resultsContainer}>
           {results.map((item) => (
-            <View key={item.id.videoId || item.id.channelId || item.id.playlistId} style={styles.resultItem}>
+            <TouchableOpacity
+              key={item.id.videoId || item.id.channelId || item.id.playlistId}
+              style={styles.resultItem}
+              onPress={() => {
+                if (item.id.videoId) {
+                  const track = {
+                    title: item.snippet.title,
+                    artist: item.snippet.channelTitle,
+                    thumbnail: item.snippet.thumbnails.default.url,
+                    id: item.id.videoId,
+                  };
+                  playTrack(track);
+                }
+              }}
+            >
               <Image
                 source={{ uri: item.snippet.thumbnails.default.url }}
                 style={styles.resultThumbnail}
@@ -132,7 +148,7 @@ const SearchResultsScreen = () => {
                 </Text>
               </View>
               <Ionicons name="ellipsis-vertical" size={24} color={Colors.dark.text} />
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}

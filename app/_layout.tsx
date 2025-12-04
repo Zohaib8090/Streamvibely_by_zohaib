@@ -1,9 +1,11 @@
+
 import 'react-native-gesture-handler';
 import { useAuth } from '../hooks/useAuth';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider } from '../hooks/useTheme';
+import { PlayerProvider } from '../contexts/PlayerContext';
 
 const InitialLayout = () => {
   const { user, initialized } = useAuth();
@@ -25,7 +27,9 @@ const InitialLayout = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <Slot />
+        <PlayerProvider>
+          <Slot />
+        </PlayerProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
