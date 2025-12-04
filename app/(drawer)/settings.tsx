@@ -19,6 +19,8 @@ import Slider from '@react-native-community/slider';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 
 async function schedulePushNotification() {
     await Notifications.scheduleNotificationAsync({
@@ -33,6 +35,7 @@ async function schedulePushNotification() {
 
 const SettingsScreen = () => {
   const { theme, isDark, toggleTheme } = useTheme();
+  const navigation = useNavigation();
   const [settings, setSettings] = useState({
     isYouTubeMusicEnabled: false,
     isBrowserNotificationsEnabled: false,
@@ -56,6 +59,10 @@ const SettingsScreen = () => {
       ...prevSettings,
       [key]: value,
     }));
+  };
+
+  const openDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
   };
 
   const exportSettings = async () => {
@@ -92,6 +99,9 @@ const SettingsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.drawerButton} onPress={openDrawer}>
+        <Ionicons name="menu" size={32} color={theme.text} />
+      </TouchableOpacity>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Settings</Text>
@@ -406,6 +416,12 @@ const getStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.background,
+  },
+  drawerButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
   },
   contentContainer: {
     paddingHorizontal: 16,
