@@ -511,7 +511,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   streamingHeader: {
       flexDirection: 'row',
-      alignItems: 'center
+      alignItems: 'center',
       gap: 8,
       marginBottom: 12,
   },
