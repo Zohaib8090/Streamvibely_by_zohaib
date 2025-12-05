@@ -44,7 +44,7 @@ const LibraryScreen = () => {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersContainer}>
-        {['Playlists', 'Songs', 'Albums', 'Artists', 'Profiles', 'Podcasts'].map(filter => (
+        {['Playlists', 'Songs', 'Albums', 'Artists', 'Podcasts'].map(filter => (
           <TouchableOpacity key={filter} style={styles.filterChip}>
             <Text style={styles.filterText}>{filter}</Text>
           </TouchableOpacity>
@@ -114,14 +114,14 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     backgroundColor: '#2C2C2E',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     marginRight: 8,
   },
   filterText: {
     color: Colors.dark.text,
-    fontFamily: Fonts.regular,
+    fontFamily: Fonts.bold,
   },
   mainContent: {
     flex: 1,
