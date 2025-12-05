@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
@@ -30,10 +30,8 @@ const DownloadsScreen = () => {
 
   const renderItem = ({ item }: { item: MediaLibrary.Asset }) => (
     <TouchableOpacity style={styles.songItem} onPress={() => play(item)}>
-      <Image source={{ uri: item.uri }} style={styles.albumArt} />
       <View style={styles.songInfo}>
         <Text style={styles.songTitle}>{item.filename}</Text>
-        <Text style={styles.songArtist}>{item.albumId}</Text>
       </View>
       <TouchableOpacity onPress={() => play(item)}>
         <Ionicons name="play-circle" size={32} color={Colors.dark.text} />
@@ -91,12 +89,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.dark.tint,
   },
-  albumArt: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginRight: 12,
-  },
   songInfo: {
     flex: 1,
   },
@@ -104,11 +96,6 @@ const styles = StyleSheet.create({
     color: Colors.dark.text,
     fontSize: 16,
     fontFamily: Fonts.medium,
-  },
-  songArtist: {
-    color: Colors.dark.text,
-    fontSize: 14,
-    fontFamily: Fonts.regular,
   },
 });
 
