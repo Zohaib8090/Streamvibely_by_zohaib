@@ -1,7 +1,7 @@
 
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -42,12 +42,6 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Personalized Recommendations</Text>
-          <TouchableOpacity onPress={() => router.push('/(drawer)/search')}>
-            <Ionicons name="search-outline" size={28} color={Colors.dark.text} />
-          </TouchableOpacity>
-        </View>
         <View style={styles.suggestionsCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <MaterialCommunityIcons name="star-four-points-outline" size={24} color="white" />
@@ -86,23 +80,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.background,
     paddingHorizontal: 16,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontFamily: Fonts.bold,
-    color: Colors.dark.text,
-  },
   suggestionsCard: {
     backgroundColor: '#1C1C1E',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    marginTop: 24, 
   },
   suggestionsTitle: {
     fontSize: 18,
