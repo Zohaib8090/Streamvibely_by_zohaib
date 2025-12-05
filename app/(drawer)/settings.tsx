@@ -421,7 +421,7 @@ const SettingsScreen = () => {
               <Text style={styles.buttonText}>Scan</Text>
             </TouchableOpacity>
           </View>
-        </V>
+        </View>
 
         {/* Appearance Section */}
         <View style={styles.section}>
