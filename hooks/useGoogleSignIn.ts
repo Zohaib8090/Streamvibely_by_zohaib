@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -24,7 +23,11 @@ export const useGoogleSignIn = () => {
           router.replace('/(tabs)');
         } catch (error) {
           console.error("Firebase sign-in error:", error);
+        } finally {
+          WebBrowser.dismissBrowser();
         }
+      } else {
+        WebBrowser.dismissBrowser();
       }
     };
     handleResponse();
