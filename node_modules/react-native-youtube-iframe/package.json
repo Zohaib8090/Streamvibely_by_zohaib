@@ -1,0 +1,81 @@
+{
+  "name": "react-native-youtube-iframe",
+  "version": "2.4.1",
+  "description": "A simple wrapper around the youtube iframe js API for react native",
+  "main": "./lib/commonjs/index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "lint": "eslint src",
+    "prepare": "bob build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LonelyCpp/react-native-youtube-iframe.git"
+  },
+  "keywords": [
+    "react-native",
+    "react-component",
+    "react-native-component",
+    "react",
+    "react native",
+    "mobile",
+    "ios",
+    "android",
+    "ui",
+    "youtube",
+    "youtube-iframe",
+    "iframe"
+  ],
+  "author": "Ananthu P Kanive",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LonelyCpp/react-native-youtube-iframe/issues"
+  },
+  "homepage": "https://lonelycpp.github.io/react-native-youtube-iframe/",
+  "peerDependencies": {
+    "react": ">=16.8.6",
+    "react-native": ">=0.60",
+    "react-native-web-webview": ">=1.0.2",
+    "react-native-webview": ">=7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-web-webview": {
+      "optional": true
+    },
+    "react-native-webview": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@react-native-community/eslint-config": "^2.0.0",
+    "eslint": "^7.7.0",
+    "react-native-builder-bob": "^0.40.12"
+  },
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "files": [
+    "src",
+    "lib",
+    "index.d.ts",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__"
+  ],
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      [
+        "commonjs",
+        {
+          "esm": false
+        }
+      ]
+    ]
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ]
+}
