@@ -3,14 +3,15 @@ import 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from './drawer';
 import { useNotifications } from '@/hooks/useNotifications';
-import { PlayerProvider } from '@/contexts/PlayerContext';
+import { PlayerProvider, usePlayer } from '@/contexts/PlayerContext';
 import MiniPlayer from '@/components/MiniPlayer';
 import FullPlayer from '@/components/FullPlayer';
 
-const DrawerLayout = () => {
-  useNotifications();
+const AppLayout = () => {
+  const { isMiniPlayerVisible, isFullPlayerVisible } = usePlayer();
+
   return (
-    <PlayerProvider>
+    <>
       <Drawer
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={({ route }) => ({
@@ -23,8 +24,17 @@ const DrawerLayout = () => {
               : {},
         })}
       />
-      <MiniPlayer />
-      <FullPlayer />
+      {isMiniPlayerVisible && <MiniPlayer />}
+      {isFullPlayerVisible && <FullPlayer />}
+    </>
+  );
+};
+
+const DrawerLayout = () => {
+  useNotifications();
+  return (
+    <PlayerProvider>
+      <AppLayout />
     </PlayerProvider>
   );
 };
