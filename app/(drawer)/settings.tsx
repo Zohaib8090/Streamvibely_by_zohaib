@@ -11,7 +11,8 @@ import {
   TouchableOpacity,
   Switch,
   Button,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import * as Notifications from 'expo-notifications';
@@ -21,6 +22,8 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
+import * as MediaLibrary from 'expo-media-library';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 async function schedulePushNotification() {
     await Notifications.scheduleNotificationAsync({
@@ -90,6 +93,29 @@ const SettingsScreen = () => {
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to import settings.');
+    }
+  };
+
+  const scanForMusic = async () => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please grant permission to access your media library to scan for music.');
+      return;
+    }
+
+    const assets = await MediaLibrary.getAssetsAsync({
+        mediaType: 'audio',
+        first: 1000,
+    });
+
+
+    if (assets.assets.length > 0) {
+      await AsyncStorage.setItem('downloaded_music', JSON.stringify(assets.assets));
+      Alert.alert('Scan complete', `Found ${assets.assets.length} music files.`, [
+        { text: 'OK', onPress: () => navigation.navigate('downloads' as never) },
+      ]);
+    } else {
+      Alert.alert('No music found', 'Could not find any music files on your device.');
     }
   };
 
@@ -378,6 +404,24 @@ const SettingsScreen = () => {
                 </View>
             </View>
         </View>
+
+        {/* Local Files Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Local Files</Text>
+          <Text style={styles.sectionDescription}>Scan your device for local music files.</Text>
+          <View style={styles.card}>
+            <View style={styles.cardLeft}>
+              <MaterialCommunityIcons name="folder-music" size={24} color={theme.text} />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>Scan for music</Text>
+                <Text style={styles.cardDescription}>Select folders on your device to scan for music</Text>
+              </View>
+            </View>
+            <TouchableOpacity style={styles.button} onPress={scanForMusic}>
+              <Text style={styles.buttonText}>Scan</Text>
+            </TouchableOpacity>
+          </View>
+        </V>
 
         {/* Appearance Section */}
         <View style={styles.section}>
