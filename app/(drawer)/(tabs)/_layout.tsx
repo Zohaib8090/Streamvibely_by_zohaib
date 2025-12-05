@@ -64,14 +64,6 @@ const TabsLayout = () => {
             tabBarIcon: ({ color }) => <Ionicons name="library" size={24} color={color} />,
           }}
         />
-        <Tabs.Screen
-          name="create-playlist"
-          options={{
-            headerShown: false,
-            title: 'Create Playlist',
-            tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={24} color={color} />,
-          }}
-        />
       </Tabs>
       <MiniPlayer />
     </View>
