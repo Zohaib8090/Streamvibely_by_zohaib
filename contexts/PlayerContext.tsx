@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, useRef, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const PlayerContext = createContext(null);
 
@@ -14,12 +14,6 @@ export const PlayerProvider = ({ children }) => {
     setCurrentTrack(track);
     setIsPlaying(true);
     setMiniPlayerVisible(true);
-  };
-
-  const playVideo = () => {
-    if (isReady) {
-      setIsPlaying(true);
-    }
   };
 
   const pauseTrack = () => {
@@ -54,7 +48,6 @@ export const PlayerProvider = ({ children }) => {
     isMiniPlayerVisible,
     isReady,
     setIsReady,
-    playVideo,
   };
 
   return (

@@ -1,23 +1,54 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import Modal from 'react-native-modal';
-import YoutubeIframe from 'react-native-youtube-iframe';
 import { usePlayer } from '../contexts/PlayerContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 
+// Platform-specific imports
+import YoutubeIframe from 'react-native-youtube-iframe';
+import YouTube from 'react-youtube';
+
 const { width } = Dimensions.get('window');
 
 const FullPlayer = () => {
-  const { isFullPlayerVisible, closeFullPlayer, currentTrack, isPlaying, pauseTrack, resumeTrack, setIsReady, playVideo } = usePlayer();
+  const {
+    isFullPlayerVisible,
+    closeFullPlayer,
+    currentTrack,
+    isPlaying,
+    pauseTrack,
+    resumeTrack,
+    setIsReady,
+  } = usePlayer();
   const [playerMode, setPlayerMode] = useState('song'); // 'song' or 'video'
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+
+  const webPlayerRef = useRef<any>(null);
+
+  // Set the highest quality thumbnail available when the track changes
+  useEffect(() => {
+    if (currentTrack) {
+      // Start by trying to load the max resolution image
+      setThumbnailUrl(`https://img.youtube.com/vi/${currentTrack.id}/maxresdefault.jpg`);
+    }
+  }, [currentTrack]);
+
+  const handleThumbnailError = () => {
+    // If maxresdefault fails, fall back to hqdefault
+    setThumbnailUrl(`https://img.youtube.com/vi/${currentTrack.id}/hqdefault.jpg`);
+  };
 
   useEffect(() => {
-    if (isFullPlayerVisible) {
-      playVideo();
+    if (Platform.OS === 'web' && webPlayerRef.current) {
+      if (isPlaying) {
+        webPlayerRef.current.playVideo();
+      } else {
+        webPlayerRef.current.pauseVideo();
+      }
     }
-  }, [isFullPlayerVisible]);
+  }, [isPlaying, webPlayerRef.current]);
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -30,6 +61,71 @@ const FullPlayer = () => {
   if (!currentTrack) {
     return null;
   }
+
+  const handleWebPlayerReady = (event: any) => {
+    webPlayerRef.current = event.target;
+    setIsReady(true);
+  };
+
+  const handleWebPlayerStateChange = (event: any) => {
+    if (event.data === 1 && !isPlaying) {
+      resumeTrack();
+    } else if (event.data === 2 && isPlaying) {
+      pauseTrack();
+    }
+  };
+
+  const handleNativePlayerStateChange = (state: string) => {
+    if (state === 'paused' && isPlaying) {
+      pauseTrack();
+    } else if (state === 'playing' && !isPlaying) {
+      resumeTrack();
+    } else if (state === 'ended') {
+      pauseTrack();
+    }
+  };
+
+  const renderPlayer = () => {
+    const videoContainerStyle = playerMode === 'video'
+      ? styles.videoPlayerVisible
+      : styles.videoPlayerHidden;
+
+    if (Platform.OS === 'web') {
+      const opts = {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+        },
+      };
+
+      return (
+        <View style={videoContainerStyle}>
+          <YouTube
+            videoId={currentTrack.id}
+            opts={opts}
+            onReady={handleWebPlayerReady}
+            onStateChange={handleWebPlayerStateChange}
+            containerClassName='youtube-container'
+          />
+        </View>
+      );
+    }
+
+    // For Android/iOS
+    return (
+      <View style={videoContainerStyle}>
+        <YoutubeIframe
+          height={width} 
+          videoId={currentTrack.id}
+          play={isPlaying}
+          onReady={() => setIsReady(true)}
+          onChangeState={handleNativePlayerStateChange}
+        />
+      </View>
+    );
+  };
 
   return (
     <Modal
@@ -50,10 +146,22 @@ const FullPlayer = () => {
             <Ionicons name="chevron-down" size={28} color="#fff" />
           </TouchableOpacity>
           <View style={styles.toggleContainer}>
-            <TouchableOpacity onPress={() => setPlayerMode('song')} style={[styles.toggleButton, playerMode === 'song' && styles.activeButton]}>
+            <TouchableOpacity
+              onPress={() => setPlayerMode('song')}
+              style={[
+                styles.toggleButton,
+                playerMode === 'song' && styles.activeButton,
+              ]}
+            >
               <Text style={styles.toggleText}>Song</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setPlayerMode('video')} style={[styles.toggleButton, playerMode === 'video' && styles.activeButton]}>
+            <TouchableOpacity
+              onPress={() => setPlayerMode('video')}
+              style={[
+                styles.toggleButton,
+                playerMode === 'video' && styles.activeButton,
+              ]}
+            >
               <Text style={styles.toggleText}>Video</Text>
             </TouchableOpacity>
           </View>
@@ -69,29 +177,20 @@ const FullPlayer = () => {
 
         {/* Content */}
         <View style={styles.content}>
-          {playerMode === 'song' ? (
-            <Image source={{ uri: currentTrack.thumbnail }} style={styles.albumArt} />
-          ) : Platform.OS === 'web' ? (
-            <View style={styles.webviewError}>
-              <Text style={styles.webviewErrorText}>Video playback is not supported on the web.</Text>
-            </View>
-          ) : (
-            <YoutubeIframe
-              height={220}
-              videoId={currentTrack.id}
-              play={isPlaying}
-              onReady={() => setIsReady(true)}
-              onChangeState={(state) => {
-                if (state === 'paused') pauseTrack();
-                else if (state === 'playing') resumeTrack();
-              }}
-            />
-          )}
+           {thumbnailUrl ? (
+             <Image
+                source={{ uri: thumbnailUrl }}
+                style={styles.albumArt}
+                resizeMode="cover"
+                onError={handleThumbnailError} // This is the fallback mechanism
+              />
+            ) : null}
+          {renderPlayer()}
         </View>
 
         {/* Details */}
         <View style={styles.detailsContainer}>
-          <Text style={styles.title}>{currentTrack.title}</Text>
+          <Text style={styles.title} numberOfLines={1}>{currentTrack.title}</Text>
           <Text style={styles.artist}>{currentTrack.artist}</Text>
         </View>
 
@@ -105,11 +204,19 @@ const FullPlayer = () => {
             <Ionicons name="thumbs-down-outline" size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#fff" />
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={22}
+              color="#fff"
+            />
             <Text style={styles.actionText}>32K</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <MaterialCommunityIcons name="playlist-plus" size={24} color="#fff" />
+            <MaterialCommunityIcons
+              name="playlist-plus"
+              size={24}
+              color="#fff"
+            />
             <Text style={styles.actionText}>Save</Text>
           </TouchableOpacity>
         </View>
@@ -138,8 +245,15 @@ const FullPlayer = () => {
           <TouchableOpacity>
             <Ionicons name="play-skip-back" size={30} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
-            <Ionicons name={isPlaying ? 'pause' : 'play'} size={50} color="#000" />
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={handlePlayPause}
+          >
+            <Ionicons
+              name={isPlaying ? 'pause' : 'play'}
+              size={50}
+              color="#000"
+            />
           </TouchableOpacity>
           <TouchableOpacity>
             <Ionicons name="play-skip-forward" size={30} color="#fff" />
@@ -154,7 +268,9 @@ const FullPlayer = () => {
           <TouchableOpacity style={styles.tabButton}>
             <Text style={styles.tabText}>UP NEXT</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tabButton, styles.activeTab]}>
+          <TouchableOpacity
+            style={[styles.tabButton, styles.activeTab]}
+          >
             <Text style={styles.tabText}>LYRICS</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.tabButton}>
@@ -206,27 +322,33 @@ const styles = StyleSheet.create({
   content: {
     marginVertical: 20,
     alignItems: 'center',
+    height: width - 40,
+    justifyContent: 'center',
+    backgroundColor: '#000',
+    overflow: 'hidden', // Prevent off-screen player from creating scroll
   },
   albumArt: {
-    width: width - 40,
-    height: width - 40,
+    width: '100%',
+    height: '100%',
     borderRadius: 10,
+    position: 'absolute',
   },
-  webviewError: {
-    width: width - 40,
-    height: 220,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1E',
-    borderRadius: 10,
+  videoPlayerVisible: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    backgroundColor: 'black',
   },
-  webviewErrorText: {
-    color: 'white',
-    fontSize: 16,
+  videoPlayerHidden: {
+    position: 'absolute',
+    top: -9999, // Move far off-screen
+    left: -9999,
+    width: 1,
+    height: 1,
   },
   detailsContainer: {
     alignItems: 'flex-start',
     width: '100%',
+    marginTop: 20,
   },
   title: {
     fontSize: 22,

@@ -28,10 +28,16 @@ const SearchResultsScreen = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<Filter>('Songs');
-  const { play } = usePlayer();
+  const { play, openFullPlayer } = usePlayer();
 
   const searchTabs = ['YT MUSIC', 'LIBRARY'];
-  const filterOptions: Filter[] = ['Songs', 'Artists', 'Videos', 'Community playlists', 'Episodes'];
+  const filterOptions: Filter[] = [
+    'Songs',
+    'Videos',
+    'Artists',
+    'Community playlists',
+    'Episodes',
+  ];
 
   const handleSearch = async (filter: Filter) => {
     if (!searchQuery) return;
@@ -95,7 +101,11 @@ const SearchResultsScreen = () => {
         ))}
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filtersContainer}
+      >
         {filterOptions.map((option) => (
           <TouchableOpacity
             key={option}
@@ -134,6 +144,7 @@ const SearchResultsScreen = () => {
                     id: item.id.videoId,
                   };
                   play(track);
+                  openFullPlayer();
                 }
               }}
             >
@@ -147,7 +158,11 @@ const SearchResultsScreen = () => {
                   {item.snippet.channelTitle}
                 </Text>
               </View>
-              <Ionicons name="ellipsis-vertical" size={24} color={Colors.dark.text} />
+              <Ionicons
+                name="ellipsis-vertical"
+                size={24}
+                color={Colors.dark.text}
+              />
             </TouchableOpacity>
           ))}
         </ScrollView>
