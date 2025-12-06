@@ -28,7 +28,7 @@ const SearchResultsScreen = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<Filter>('Songs');
-  const { playTrack } = usePlayer();
+  const { play } = usePlayer();
 
   const searchTabs = ['YT MUSIC', 'LIBRARY'];
   const filterOptions: Filter[] = ['Songs', 'Artists', 'Videos', 'Community playlists', 'Episodes'];
@@ -133,7 +133,7 @@ const SearchResultsScreen = () => {
                     thumbnail: item.snippet.thumbnails.default.url,
                     id: item.id.videoId,
                   };
-                  playTrack(track);
+                  play(track);
                 }
               }}
             >

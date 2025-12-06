@@ -8,11 +8,18 @@ export const PlayerProvider = ({ children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullPlayerVisible, setFullPlayerVisible] = useState(false);
   const [isMiniPlayerVisible, setMiniPlayerVisible] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const play = (track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
-    setMiniPlayerVisible(true); // Show mini player when a track is played
+    setMiniPlayerVisible(true);
+  };
+
+  const playVideo = () => {
+    if (isReady) {
+      setIsPlaying(true);
+    }
   };
 
   const pauseTrack = () => {
@@ -45,6 +52,9 @@ export const PlayerProvider = ({ children }) => {
     openFullPlayer,
     closeFullPlayer,
     isMiniPlayerVisible,
+    isReady,
+    setIsReady,
+    playVideo,
   };
 
   return (

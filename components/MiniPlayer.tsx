@@ -45,7 +45,7 @@ const MiniPlayer = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 0, // Adjust this value if you have a tab bar
+    bottom: 50, // Adjust this value if you have a tab bar
     left: 0,
     right: 0,
     height: 70,

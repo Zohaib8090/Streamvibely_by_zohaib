@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import Modal from 'react-native-modal';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import { usePlayer } from '../contexts/PlayerContext';
@@ -10,8 +10,14 @@ import Slider from '@react-native-community/slider';
 const { width } = Dimensions.get('window');
 
 const FullPlayer = () => {
-  const { isFullPlayerVisible, closeFullPlayer, currentTrack, isPlaying, pauseTrack, resumeTrack } = usePlayer();
+  const { isFullPlayerVisible, closeFullPlayer, currentTrack, isPlaying, pauseTrack, resumeTrack, setIsReady, playVideo } = usePlayer();
   const [playerMode, setPlayerMode] = useState('song'); // 'song' or 'video'
+
+  useEffect(() => {
+    if (isFullPlayerVisible) {
+      playVideo();
+    }
+  }, [isFullPlayerVisible]);
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -65,14 +71,19 @@ const FullPlayer = () => {
         <View style={styles.content}>
           {playerMode === 'song' ? (
             <Image source={{ uri: currentTrack.thumbnail }} style={styles.albumArt} />
+          ) : Platform.OS === 'web' ? (
+            <View style={styles.webviewError}>
+              <Text style={styles.webviewErrorText}>Video playback is not supported on the web.</Text>
+            </View>
           ) : (
             <YoutubeIframe
               height={220}
               videoId={currentTrack.id}
               play={isPlaying}
+              onReady={() => setIsReady(true)}
               onChangeState={(state) => {
                 if (state === 'paused') pauseTrack();
-                if (state === 'playing') resumeTrack();
+                else if (state === 'playing') resumeTrack();
               }}
             />
           )}
@@ -200,6 +211,18 @@ const styles = StyleSheet.create({
     width: width - 40,
     height: width - 40,
     borderRadius: 10,
+  },
+  webviewError: {
+    width: width - 40,
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 10,
+  },
+  webviewErrorText: {
+    color: 'white',
+    fontSize: 16,
   },
   detailsContainer: {
     alignItems: 'flex-start',
