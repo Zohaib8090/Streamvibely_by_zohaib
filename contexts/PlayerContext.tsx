@@ -9,7 +9,7 @@ export const PlayerProvider = ({ children }) => {
   const [isFullPlayerVisible, setFullPlayerVisible] = useState(false);
   const [isMiniPlayerVisible, setMiniPlayerVisible] = useState(false);
 
-  const playTrack = (track) => {
+  const play = (track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
     setMiniPlayerVisible(true); // Show mini player when a track is played
@@ -38,7 +38,7 @@ export const PlayerProvider = ({ children }) => {
   const value = {
     currentTrack,
     isPlaying,
-    playTrack,
+    play,
     pauseTrack,
     resumeTrack,
     isFullPlayerVisible,
