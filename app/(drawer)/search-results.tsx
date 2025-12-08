@@ -144,7 +144,7 @@ const SearchResultsScreen = () => {
                     id: item.id.videoId,
                   };
                   play(track);
-                  openFullPlayer();
+                  setTimeout(() => openFullPlayer(), 0);
                 }
               }}
             >
