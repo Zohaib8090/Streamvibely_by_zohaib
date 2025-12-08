@@ -5,6 +5,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -13,12 +14,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { usePlayer } from '../../contexts/PlayerContext';
 
 const YOUTUBE_API_KEY = 'AIzaSyBiuTKC3t93mq7ardC2_AVwD5CVhM2TFIc'; // Replace with your YouTube API key
 
 const SearchScreen = () => {
   const router = useRouter();
+  const { play } = usePlayer();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [searchHistory, setSearchHistory] = useState([
     { term: 'talwinder songs' },
     { term: 'ehasaas' },
@@ -42,14 +46,25 @@ const SearchScreen = () => {
 
     try {
       const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&key=${YOUTUBE_API_KEY}`
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&type=video&key=${YOUTUBE_API_KEY}`
       );
       const data = await response.json();
-      // Process and display search results
-      console.log(data.items);
+      const formattedResults = data.items
+        .filter(item => item.id.kind === 'youtube#video')
+        .map((item) => ({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          image: item.snippet.thumbnails.high.url,
+          artist: item.snippet.channelTitle,
+        }));
+      setSearchResults(formattedResults);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handlePlay = (track) => {
+    play(track, searchResults, { openFullPlayer: true });
   };
 
   const handleMicSearch = () => {
@@ -81,15 +96,25 @@ const SearchScreen = () => {
         </View>
       </View>
       <ScrollView>
-        {searchHistory.map((item, index) => (
-          <View key={index} style={styles.historyItem}>
-            <MaterialCommunityIcons name="history" size={24} color="#8E8E93" />
-            <Text style={styles.historyText}>{item.term}</Text>
-            <TouchableOpacity>
-              <MaterialCommunityIcons name="arrow-top-left" size={24} color="#8E8E93" />
-            </TouchableOpacity>
-          </View>
-        ))}
+        {searchResults.length > 0
+          ? searchResults.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.resultItem} onPress={() => handlePlay(item)}>
+                <Image source={{ uri: item.image }} style={styles.resultImage} />
+                <View style={styles.resultTextContainer}>
+                  <Text style={styles.resultTitle}>{item.title}</Text>
+                  <Text style={styles.resultArtist}>{item.artist}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          : searchHistory.map((item, index) => (
+              <View key={index} style={styles.historyItem}>
+                <MaterialCommunityIcons name="history" size={24} color="#8E8E93" />
+                <Text style={styles.historyText}>{item.term}</Text>
+                <TouchableOpacity>
+                  <MaterialCommunityIcons name="arrow-top-left" size={24} color="#8E8E93" />
+                </TouchableOpacity>
+              </View>
+            ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -137,5 +162,29 @@ const styles = StyleSheet.create({
     color: Colors.dark.text,
     fontFamily: Fonts.regular,
     fontSize: 16,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 12,
+  },
+  resultImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  resultTextContainer: {
+    flex: 1,
+  },
+  resultTitle: {
+    color: Colors.dark.text,
+    fontFamily: Fonts.bold,
+    fontSize: 16,
+  },
+  resultArtist: {
+    color: '#8E8E93',
+    fontFamily: Fonts.regular,
+    fontSize: 14,
   },
 });

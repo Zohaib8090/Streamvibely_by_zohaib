@@ -1,13 +1,19 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
 import { useRouter } from 'expo-router';
+import { usePlayer } from '../../contexts/PlayerContext';
 
 const HistoryScreen = () => {
   const router = useRouter();
+  const { history, play } = usePlayer();
+
+  const handlePlay = (track) => {
+    play(track, history);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -18,9 +24,21 @@ const HistoryScreen = () => {
         <Text style={styles.title}>History</Text>
         <View />
       </View>
-      <View style={styles.content}>
-        <Text style={styles.comingSoon}>Coming Soon</Text>
-      </View>
+      <ScrollView contentContainerStyle={styles.content}>
+        {history.length > 0 ? (
+          history.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.resultItem} onPress={() => handlePlay(item)}>
+              <Image source={{ uri: item.image }} style={styles.resultImage} />
+              <View style={styles.resultTextContainer}>
+                <Text style={styles.resultTitle}>{item.title}</Text>
+                <Text style={styles.resultArtist}>{item.artist}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyText}>No recently played songs.</Text>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -45,14 +63,37 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  comingSoon: {
+  emptyText: {
     color: Colors.dark.text,
-    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 50,
     fontFamily: Fonts.regular,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 12,
+  },
+  resultImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  resultTextContainer: {
+    flex: 1,
+  },
+  resultTitle: {
+    color: Colors.dark.text,
+    fontFamily: Fonts.bold,
+    fontSize: 16,
+  },
+  resultArtist: {
+    color: '#8E8E93',
+    fontFamily: Fonts.regular,
+    fontSize: 14,
   },
 });
 

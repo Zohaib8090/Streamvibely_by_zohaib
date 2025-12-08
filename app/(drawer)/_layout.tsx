@@ -8,7 +8,7 @@ import MiniPlayer from '@/components/MiniPlayer';
 import FullPlayer from '@/components/FullPlayer';
 
 const AppLayout = () => {
-  const { isMiniPlayerVisible, isFullPlayerVisible } = usePlayer();
+  const { playerState } = usePlayer();
 
   return (
     <>
@@ -24,8 +24,8 @@ const AppLayout = () => {
               : {},
         })}
       />
-      {isMiniPlayerVisible && <MiniPlayer />}
-      {isFullPlayerVisible && <FullPlayer />}
+      {playerState === 'mini' && <MiniPlayer />}
+      {playerState === 'full' && <FullPlayer />}
     </>
   );
 };

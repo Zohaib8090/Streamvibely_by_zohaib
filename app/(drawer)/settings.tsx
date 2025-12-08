@@ -12,16 +12,14 @@ import {
   Switch,
   Button,
   Alert,
-  Platform
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import * as Notifications from 'expo-notifications';
 import Slider from '@react-native-community/slider';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import { cacheDirectory, readAsStringAsync, writeAsStringAsync } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { useNavigation } from '@react-navigation/native';
-import { DrawerActions } from '@react-navigation/native';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 import * as MediaLibrary from 'expo-media-library';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -71,8 +69,8 @@ const SettingsScreen = () => {
   const exportSettings = async () => {
     try {
       const settingsString = JSON.stringify(settings, null, 2);
-      const fileUri = FileSystem.cacheDirectory + 'settings.json';
-      await FileSystem.writeAsStringAsync(fileUri, settingsString);
+      const fileUri = cacheDirectory + 'settings.json';
+      await writeAsStringAsync(fileUri, settingsString);
       await Sharing.shareAsync(fileUri, { mimeType: 'application/json', dialogTitle: 'Export Settings' });
     } catch (error) {
       console.error(error);
@@ -86,7 +84,7 @@ const SettingsScreen = () => {
         type: 'application/json',
       });
         if (result.assets && result.assets.length > 0) {
-        const settingsString = await FileSystem.readAsStringAsync(result.assets[0].uri);
+        const settingsString = await readAsStringAsync(result.assets[0].uri);
         const importedSettings = JSON.parse(settingsString);
         setSettings(importedSettings);
         Alert.alert('Success', 'Settings imported successfully.');

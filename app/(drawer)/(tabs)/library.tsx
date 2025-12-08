@@ -1,16 +1,18 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
 import LibraryModeModal from '@/components/LibraryModeModal';
 import { useRouter } from 'expo-router';
+import { usePlayer } from '../../../contexts/PlayerContext';
 
 const LibraryScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [libraryMode, setLibraryMode] = useState('Library');
   const router = useRouter();
+  const { history, play } = usePlayer();
 
   const handleSelectMode = (mode) => {
     if (mode === 'Downloads') {
@@ -19,6 +21,10 @@ const LibraryScreen = () => {
       setLibraryMode(mode);
     }
     setModalVisible(false);
+  };
+
+  const handlePlay = (track) => {
+    play(track, history);
   };
 
   return (
@@ -32,7 +38,7 @@ const LibraryScreen = () => {
           <TouchableOpacity onPress={() => router.push('/(drawer)/history')}>
             <Ionicons name="time-outline" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(drawer)/search')}>
             <Ionicons name="search-outline" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
           <TouchableOpacity>
@@ -58,7 +64,21 @@ const LibraryScreen = () => {
             <Ionicons name="grid" size={20} color={Colors.dark.text} />
           </View>
         </View>
-        {/* Add list of library items here */}
+        <ScrollView>
+          {history.length > 0 ? (
+            history.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.resultItem} onPress={() => handlePlay(item)}>
+                <Image source={{ uri: item.image }} style={styles.resultImage} />
+                <View style={styles.resultTextContainer}>
+                  <Text style={styles.resultTitle}>{item.title}</Text>
+                  <Text style={styles.resultArtist}>{item.artist}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>No recently played songs.</Text>
+          )}
+        </ScrollView>
       </View>
 
       <TouchableOpacity style={styles.fab}>
@@ -157,7 +177,37 @@ const styles = StyleSheet.create({
   fabText: {
     color: 'black',
     fontWeight: 'bold'
-  }
+  },
+  emptyText: {
+    color: Colors.dark.text,
+    textAlign: 'center',
+    marginTop: 20,
+    fontFamily: Fonts.regular,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 12,
+  },
+  resultImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  resultTextContainer: {
+    flex: 1,
+  },
+  resultTitle: {
+    color: Colors.dark.text,
+    fontFamily: Fonts.bold,
+    fontSize: 16,
+  },
+  resultArtist: {
+    color: '#8E8E93',
+    fontFamily: Fonts.regular,
+    fontSize: 14,
+  },
 });
 
 export default LibraryScreen;

@@ -19,7 +19,7 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 
 const ForgotPassword = () => {
-  const { dark } = useTheme();
+  useTheme();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -46,7 +46,7 @@ const ForgotPassword = () => {
         <View style={styles.modal}>
           <Text style={styles.title}>Forgot Password</Text>
           <Text style={styles.subtitle}>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </Text>
 
           <View style={styles.inputContainer}>

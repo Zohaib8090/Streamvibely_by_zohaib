@@ -21,7 +21,7 @@ import { auth } from '../../firebase';
 import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 
 const Login = () => {
-  const { dark } = useTheme();
+  useTheme();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -127,7 +127,7 @@ const Login = () => {
           </TouchableOpacity>
 
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account?</Text>
+            <Text style={styles.signUpText}>Don&apos;t have an account?</Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
               <Text style={styles.signUpLink}> Sign up</Text>
             </TouchableOpacity>
