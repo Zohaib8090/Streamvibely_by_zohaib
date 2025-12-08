@@ -16,21 +16,32 @@ export const PlayerProvider = ({ children }) => {
   const [isShuffleEnabled, setShuffleEnabled] = useState(false);
   const [isLoopEnabled, setLoopEnabled] = useState(false);
   const [playbackStatus, setPlaybackStatus] = useState(null);
-  const [isNowVideo, setIsNowVideo] = useState(false); // New state for video playback
+  const [isNowVideo, setIsNowVideo] = useState(false);
 
   const videoRef = useRef(null);
   const [fetchingTrack, setFetchingTrack] = useState(null); // { id: string, isVideo: boolean }
 
-  const onPlaybackStatusUpdate = (status) => {
-    setPlaybackStatus(status);
-    if (status.didJustFinish) {
-      if (isLoopEnabled) {
-        videoRef.current?.replay();
-      } else {
-        skipToNext();
-      }
+  const handleEnd = () => {
+    if (isLoopEnabled) {
+      videoRef.current?.replay();
+    } else {
+      skipToNext();
     }
   };
+
+  const handleProgress = (status) => {
+    const newStatus = {
+        positionMillis: status.position * 1000,
+        durationMillis: status.duration * 1000,
+        isPlaying: isPlaying,
+        isLoaded: true,
+    };
+    setPlaybackStatus(newStatus);
+  };
+
+  const handleStatusChange = (status) => {
+    setIsPlaying(status === 'playing');
+  }
 
   const handleStreamUrlFetched = (streamUrl, trackId, isVideo) => {
     const trackToPlay = playlist.find(t => t.id === trackId) || history.find(t => t.id === trackId) || { id: trackId };
@@ -78,17 +89,16 @@ export const PlayerProvider = ({ children }) => {
       setOriginalPlaylist(newPlaylist);
     }
     
-    // Trigger the serverless fetch with video flag
     setFetchingTrack({ id: track.id, isVideo });
   };
 
-  const pauseTrack = async () => {
-    await videoRef.current?.pause();
+  const pauseTrack = () => {
+    videoRef.current?.pause();
     setIsPlaying(false);
   };
 
-  const resumeTrack = async () => {
-    await videoRef.current?.play();
+  const resumeTrack = () => {
+    videoRef.current?.play();
     setIsPlaying(true);
   };
 
@@ -138,7 +148,11 @@ export const PlayerProvider = ({ children }) => {
         const j = Math.floor(Math.random() * (i + 1));
         [otherTracks[i], otherTracks[j]] = [otherTracks[j], otherTracks[i]];
       }
-      setPlaylist([currentTrack, ...otherTracks]);
+      if (currentTrack) {
+        setPlaylist([currentTrack, ...otherTracks]);
+      } else {
+        setPlaylist(otherTracks);
+      }
     } else {
       setPlaylist(originalPlaylist);
     }
@@ -168,10 +182,8 @@ export const PlayerProvider = ({ children }) => {
           .then(data => {
             let stream;
             if (${isVideo}) {
-              // Find a suitable video stream (e.g., 1080p or 720p)
               stream = data.videoStreams.find(s => s.quality === '1080p') || data.videoStreams.find(s => s.quality === '720p');
             } else {
-              // Prefer m4a audio, fallback to first available
               stream = data.audioStreams.find(s => s.mimeType === 'audio/mp4') || data.audioStreams[0];
             }
 
@@ -251,6 +263,13 @@ export const PlayerProvider = ({ children }) => {
     <PlayerContext.Provider value={value}>
       {children}
       <StreamFetcher />
+      <Video
+        ref={videoRef}
+        style={{ width: 0, height: 0 }} // Keep it hidden
+        onEnd={handleEnd}
+        onProgress={handleProgress}
+        onStatusChange={handleStatusChange}
+      />
     </PlayerContext.Provider>
   );
 };

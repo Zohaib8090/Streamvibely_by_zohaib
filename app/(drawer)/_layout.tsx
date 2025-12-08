@@ -3,11 +3,12 @@ import 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from './drawer';
 import { useNotifications } from '@/hooks/useNotifications';
-import { PlayerProvider, usePlayer } from '@/contexts/PlayerContext';
+import { usePlayer } from '@/contexts/PlayerContext';
 import MiniPlayer from '@/components/MiniPlayer';
 import FullPlayer from '@/components/FullPlayer';
 
-const AppLayout = () => {
+const DrawerLayout = () => {
+  useNotifications();
   const { playerState } = usePlayer();
 
   return (
@@ -27,15 +28,6 @@ const AppLayout = () => {
       {playerState === 'mini' && <MiniPlayer />}
       {playerState === 'full' && <FullPlayer />}
     </>
-  );
-};
-
-const DrawerLayout = () => {
-  useNotifications();
-  return (
-    <PlayerProvider>
-      <AppLayout />
-    </PlayerProvider>
   );
 };
 
