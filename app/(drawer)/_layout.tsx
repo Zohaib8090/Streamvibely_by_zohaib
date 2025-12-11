@@ -7,28 +7,38 @@ import { usePlayer } from '@/contexts/PlayerContext';
 import MiniPlayer from '@/components/MiniPlayer';
 import FullPlayer from '@/components/FullPlayer';
 
-const DrawerLayout = () => {
-  useNotifications();
-  const { playerState } = usePlayer();
+// This component encapsulates the UI that depends on the PlayerContext.
+const PlayerUI = () => {
+    const { playerState } = usePlayer();
+    return (
+        <>
+            {playerState === 'mini' && <MiniPlayer />}
+            {playerState === 'full' && <FullPlayer />}
+        </>
+    );
+}
 
-  return (
-    <>
-      <Drawer
-        drawerContent={(props) => <CustomDrawerContent {...props} />}
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          drawerActiveTintColor: '#fff',
-          drawerInactiveTintColor: '#fff',
-          drawerItemStyle:
-            route.name === '(tabs)' || route.name === 'drawer'
-              ? { display: 'none' }
-              : {},
-        })}
-      />
-      {playerState === 'mini' && <MiniPlayer />}
-      {playerState === 'full' && <FullPlayer />}
-    </>
-  );
+const DrawerLayout = () => {
+    useNotifications();
+
+    return (
+        <>
+            <Drawer
+                drawerContent={(props) => <CustomDrawerContent {...props} />}
+                screenOptions={({ route }) => ({
+                    headerShown: false,
+                    drawerActiveTintColor: '#fff',
+                    drawerInactiveTintColor: '#fff',
+                    drawerItemStyle:
+                        route.name === '(tabs)' || route.name === 'drawer'
+                            ? { display: 'none' }
+                            : {},
+                })}
+            />
+            {/* By rendering PlayerUI here, we ensure usePlayer() is called within a component that is a guaranteed child of the main PlayerProvider. */}
+            <PlayerUI />
+        </>
+    );
 };
 
 export default DrawerLayout;
