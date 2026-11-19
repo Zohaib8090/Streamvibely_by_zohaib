@@ -227,7 +227,7 @@ private fun AppShell(services: AppServices, spec: ThemeSpec, artSeed: Int?) {
     var mediaCacheSize by remember { mutableStateOf(0L) }
     LaunchedEffect(overlay == Overlay.Settings) {
         if (overlay == Overlay.Settings) {
-            mediaCacheSize = withContext(Dispatchers.IO) { services.platform.getMediaCacheSizeBytes() }
+            mediaCacheSize = withContext(Dispatchers.Default) { services.platform.getMediaCacheSizeBytes() }
         }
         while (overlay == Overlay.Settings) {
             notificationsOn = services.platform.notificationsEnabled()
@@ -322,10 +322,11 @@ private fun AppShell(services: AppServices, spec: ThemeSpec, artSeed: Int?) {
                     val initialKbps = firstMatch.first.bitrateKbps ?: 128
                     scope.launch {
                         var bestKbps = initialKbps
-                        val deadline = System.currentTimeMillis() + 3500L
-                        while (System.currentTimeMillis() < deadline) {
+                        val started = kotlin.time.TimeSource.Monotonic.markNow()
+                        fun msLeft() = 3500L - started.elapsedNow().inWholeMilliseconds
+                        while (msLeft() > 0) {
                             val next = runCatching {
-                                withTimeoutOrNull((deadline - System.currentTimeMillis()).coerceAtLeast(100L)) {
+                                withTimeoutOrNull(msLeft().coerceAtLeast(100L)) {
                                     channel.receive()
                                 }
                             }.getOrNull() ?: break
