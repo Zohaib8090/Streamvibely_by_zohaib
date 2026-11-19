@@ -1,0 +1,91 @@
+name: Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:          # manual trigger from GitHub UI
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write             # required to create Releases
+
+jobs:
+  release:
+    name: Build Signed Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Java 17 ─────────────────────────────────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      # ── 3. Gradle wrapper ──────────────────────────────────────────────────
+      - name: Grant Gradle execute permission
+        run: chmod +x gradlew
+
+      # ── 4. Android SDK licenses ────────────────────────────────────────────
+      - name: Accept Android SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+
+      # ── 5. Decode keystore ─────────────────────────────────────────────────
+      - name: Decode signing keystore
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_B64 }}" ]; then
+            echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+          else
+            echo "::warning::KEYSTORE_B64 not set — APK will be signed with debug key"
+          fi
+
+      # ── 6. Build release APK ───────────────────────────────────────────────
+      - name: Build release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          JAMENDO_CLIENT_ID: ${{ secrets.JAMENDO_CLIENT_ID }}
+        run: ./gradlew :androidApp:assembleRelease --no-daemon
+
+      # ── 7. Rename APK with version tag ────────────────────────────────────
+      - name: Rename APK
+        id: apk
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          APK_DIR="androidApp/build/outputs/apk/release"
+          DEST="StreamVibely-${TAG}.apk"
+          cp "$APK_DIR"/$(ls "$APK_DIR" | grep '\.apk' | head -1) "$DEST"
+          echo "file=$DEST" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG"   >> "$GITHUB_OUTPUT"
+          echo "Built APK: $DEST"
+
+      # ── 8. Create / update GitHub Release ─────────────────────────────────
+      - name: Publish to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.apk.outputs.tag }}"
+          FILE="${{ steps.apk.outputs.file }}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            # Release exists — just upload / replace the APK asset
+            gh release upload "$TAG" "$FILE" --clobber
+          else
+            # Create new release with auto-generated changelog
+            gh release create "$TAG" "$FILE" \
+              --title "StreamVibely $TAG" \
+              --generate-notes \
+              --target "${{ github.sha }}"
+          fi

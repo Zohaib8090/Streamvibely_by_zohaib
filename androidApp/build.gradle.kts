@@ -23,8 +23,23 @@ android {
         ?: System.getenv("JAMENDO_CLIENT_ID").orEmpty()
     defaultConfig { buildConfigField("String", "JAMENDO_CLIENT_ID", "\"$jamendoId\"") }
 
+    // Release signing comes from env vars set by the GitHub release workflow. Without them (local builds)
+    // the release APK is signed with the debug key so it still installs.
+    val keystorePath = System.getenv("KEYSTORE_PATH")
+    signingConfigs {
+        if (keystorePath != null) {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
