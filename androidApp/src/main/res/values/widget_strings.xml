@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_now_playing_label">Now playing</string>
+    <string name="widget_now_playing_description">Shows the current track with previous, play/pause and next controls.</string>
+    <string name="widget_recently_played_label">Recently played</string>
+    <string name="widget_recently_played_description">Shows your last four tracks. Tap one to open it in Streamvibely.</string>
+    <string name="widget_cd_previous">Previous track</string>
+    <string name="widget_cd_play">Play</string>
+    <string name="widget_cd_pause">Pause</string>
+    <string name="widget_cd_next">Next track</string>
+    <string name="widget_cd_cover">Cover art</string>
+    <string name="widget_nothing_playing">Nothing playing</string>
+    <string name="widget_open_app">Open Streamvibely</string>
+    <string name="widget_recent_empty">Play something to see it here</string>
+</resources>

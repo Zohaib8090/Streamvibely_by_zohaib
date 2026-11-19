@@ -1,0 +1,17 @@
+.gradle/
+.kotlin/
+build/
+*.iml
+.idea/
+local.properties
+*.keystore
+*.jks
+google-services.json
+.env
+
+# Firebase/Google config files from the old app contain keys
+music app.json
+google-services.json
+
+# Third-party reference clone (has its own git history)
+LastWave-native/

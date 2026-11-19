@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="512" height="512" role="img" aria-label="StreamVibely icon">
+  <rect width="108" height="108" rx="30" fill="#0E2A2C"/>
+  <g transform="translate(-6 4) scale(.92)">
+    <path d="M65.3 34.5 A13 13 0 1 0 54 54 A13 13 0 1 1 42.7 73.5" fill="none" stroke="#7EE0E0" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g fill="#F2B84B" stroke="#F2B84B">
+    <ellipse cx="72" cy="69" rx="8" ry="6.2" transform="rotate(-22 72 69)" stroke="none"/>
+    <path d="M78.2 67 V36 C78.2 45 88 46 88 56" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
