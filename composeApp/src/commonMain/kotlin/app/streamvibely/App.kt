@@ -27,6 +27,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
@@ -177,6 +180,16 @@ private fun AppShell(services: AppServices, spec: ThemeSpec, artSeed: Int?) {
     val spotifySyncState by (services.spotifySync?.syncState ?: kotlinx.coroutines.flow.MutableStateFlow(app.streamvibely.domain.SpotifySyncState.Idle)).collectAsState()
     val spotifyStatusMessage by (services.spotifySync?.statusMessage ?: kotlinx.coroutines.flow.MutableStateFlow(null)).collectAsState()
     val musicPrefs by services.musicPreferences.preferences.collectAsState()
+    val isOnline by services.networkOnline.collectAsState()
+
+    // When device goes offline, automatically show the Downloads playlist if it has songs,
+    // so the user can keep listening without manually navigating.
+    LaunchedEffect(isOnline, downloaded.size) {
+        if (!isOnline && downloaded.isNotEmpty() && overlay == null) {
+            overlay = Overlay.PlaylistOpen(DOWNLOADS_ID)
+        }
+    }
+    val isOnline by services.networkOnline.collectAsState()
 
     var tab by remember { mutableStateOf(Tab.Home) }
     // Show onboarding overlay on very first launch (before onboarding_complete is set).

@@ -37,6 +37,7 @@ import app.streamvibely.ui.common.LocalArtworkLoader
 class MainActivity : ComponentActivity() {
     private lateinit var player: AndroidPlayerController
     private lateinit var equalizer: AndroidEqualizerController
+    private lateinit var networkMonitor: app.streamvibely.network.NetworkMonitor
     private val askNotifications = mutableStateOf(false)
     private var askedNotificationsOnce = false
 
@@ -68,6 +69,8 @@ class MainActivity : ComponentActivity() {
         val youtubeStreamResolver = app.streamvibely.playback.resolve.YouTubeStreamResolver(appContext)
         app.streamvibely.playback.PlaybackService.streamRefresher = youtubeStreamResolver
 
+        val networkMonitor = app.streamvibely.network.NetworkMonitor(appContext)
+        this.networkMonitor = networkMonitor
         val services = AppServices(
             player = AskNotificationsOnFirstPlay(player) {
                 if (!askedNotificationsOnce && !isGranted(appContext, AppPermission.Notifications)) {
@@ -94,6 +97,7 @@ class MainActivity : ComponentActivity() {
             spotifySync = spotifySync,
             musicPreferences = AndroidMusicPreferencesRepository(appContext),
             recentlyPlayed = app.streamvibely.playback.AndroidRecentlyPlayedRepository(appContext),
+            networkOnline  = networkMonitor.isOnline,
         )
 
         setContent {
@@ -121,6 +125,7 @@ class MainActivity : ComponentActivity() {
         if (isFinishing) {
             player.release()
             equalizer.release()
+            networkMonitor.unregister()
         }
         super.onDestroy()
     }

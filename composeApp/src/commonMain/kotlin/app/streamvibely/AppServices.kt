@@ -11,6 +11,8 @@ import app.streamvibely.domain.PlayerController
 import app.streamvibely.domain.PlaylistRepository
 import app.streamvibely.domain.ThemeRepository
 import app.streamvibely.lyrics.LyricsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /** Everything the shared UI needs from the platform, built once per process by the host. */
 class AppServices(
@@ -33,6 +35,8 @@ class AppServices(
     val spotifySync: app.streamvibely.domain.SpotifySyncRepository? = null,
     val musicPreferences: app.streamvibely.domain.MusicPreferencesRepository = app.streamvibely.domain.InMemoryMusicPreferencesRepository(),
     val recentlyPlayed: app.streamvibely.domain.RecentlyPlayedRepository = app.streamvibely.domain.InMemoryRecentlyPlayedRepository(),
+    /** Live network connectivity: true when the device has a validated internet connection. */
+    val networkOnline: StateFlow<Boolean> = MutableStateFlow(true),
 )
 
 /** Jamendo's code stays in the project but is hidden from the UI for now. Set to true to show it again. */
